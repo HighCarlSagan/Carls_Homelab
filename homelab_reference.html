@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HOMELAB — highcarlsagan.dev</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --bg2: #0f1218;
+    --bg3: #141820;
+    --border: #1e2530;
+    --border2: #252d3a;
+    --accent: #00d4ff;
+    --accent2: #7b61ff;
+    --accent3: #00ff9d;
+    --warn: #ffaa00;
+    --danger: #ff4466;
+    --text: #c8d4e0;
+    --text2: #7a8fa8;
+    --text3: #4a5a6e;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Space Grotesk', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── BACKGROUND GRID ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 400px;
+    background: radial-gradient(ellipse, rgba(0,212,255,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── LAYOUT ── */
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── HEADER ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 32px 0 24px;
+    margin-bottom: 48px;
+    position: relative;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .site-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  h1 span {
+    color: var(--accent);
+  }
+
+  .header-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+
+  .pill-green { background: rgba(0,255,157,0.1); color: var(--accent3); border: 1px solid rgba(0,255,157,0.2); }
+  .pill-blue { background: rgba(0,212,255,0.1); color: var(--accent); border: 1px solid rgba(0,212,255,0.2); }
+  .pill-yellow { background: rgba(255,170,0,0.1); color: var(--warn); border: 1px solid rgba(255,170,0,0.2); }
+  .pill-purple { background: rgba(123,97,255,0.1); color: var(--accent2); border: 1px solid rgba(123,97,255,0.2); }
+
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .subtitle {
+    margin-top: 12px;
+    color: var(--text2);
+    font-size: 13px;
+    max-width: 600px;
+  }
+
+  /* ── NAV ── */
+  nav {
+    display: flex;
+    gap: 2px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+
+  nav a {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+    text-decoration: none;
+    padding: 5px 12px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    transition: all 0.15s;
+    letter-spacing: 0.05em;
+  }
+
+  nav a:hover {
+    color: var(--accent);
+    border-color: var(--border2);
+    background: rgba(0,212,255,0.05);
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    margin-bottom: 56px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .icon-blue { background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.2); }
+  .icon-purple { background: rgba(123,97,255,0.1); border: 1px solid rgba(123,97,255,0.2); }
+  .icon-green { background: rgba(0,255,157,0.1); border: 1px solid rgba(0,255,157,0.2); }
+  .icon-yellow { background: rgba(255,170,0,0.1); border: 1px solid rgba(255,170,0,0.2); }
+
+  h2 {
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: -0.01em;
+  }
+
+  .section-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+  }
+
+  /* ── TABLES ── */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  thead tr {
+    background: var(--bg3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  thead th {
+    padding: 10px 14px;
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--text3);
+    text-transform: uppercase;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: rgba(255,255,255,0.02); }
+
+  tbody td {
+    padding: 10px 14px;
+    color: var(--text);
+    vertical-align: top;
+  }
+
+  .mono { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+  .mono2 { font-family: var(--mono); font-size: 12px; color: var(--text2); }
+  .mono3 { font-family: var(--mono); font-size: 11px; color: var(--accent3); }
+
+  /* ── STATUS BADGE ── */
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+
+  .status-up { background: rgba(0,255,157,0.1); color: var(--accent3); border: 1px solid rgba(0,255,157,0.15); }
+  .status-pending { background: rgba(255,170,0,0.1); color: var(--warn); border: 1px solid rgba(255,170,0,0.15); }
+  .status-skip { background: rgba(255,68,102,0.1); color: var(--danger); border: 1px solid rgba(255,68,102,0.15); }
+
+  /* ── CODE BLOCKS ── */
+  .code-block {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+    overflow-x: auto;
+    margin: 8px 0;
+    line-height: 1.7;
+  }
+
+  .code-block .cmd { color: var(--accent3); }
+  .code-block .cmt { color: var(--text3); }
+  .code-block .val { color: var(--accent); }
+  .code-block .str { color: #ffcc88; }
+
+  /* ── ALERT BOXES ── */
+  .alert {
+    display: flex;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 6px;
+    margin: 12px 0;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .alert-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .alert-warn { background: rgba(255,170,0,0.06); border: 1px solid rgba(255,170,0,0.2); color: #d4a820; }
+  .alert-info { background: rgba(0,212,255,0.06); border: 1px solid rgba(0,212,255,0.15); color: #70b8d0; }
+  .alert-danger { background: rgba(255,68,102,0.06); border: 1px solid rgba(255,68,102,0.2); color: #d06070; }
+
+  /* ── GRID ── */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  @media (max-width: 700px) {
+    .grid2, .grid3 { grid-template-columns: 1fr; }
+    .header-top { flex-direction: column; }
+    .header-meta { align-items: flex-start; }
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .card-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .card-value {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    word-break: break-all;
+  }
+
+  .card-sub {
+    font-size: 11px;
+    color: var(--text2);
+    margin-top: 4px;
+  }
+
+  /* ── CHECKLIST ── */
+  .checklist { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--text2);
+    padding: 6px 10px;
+    border-radius: 4px;
+  }
+
+  .checklist li:hover { background: rgba(255,255,255,0.02); }
+
+  .check-icon { flex-shrink: 0; margin-top: 1px; font-size: 13px; }
+  .check-done { color: var(--text); }
+  .check-done .check-icon { color: var(--accent3); }
+  .check-pending { color: var(--warn); }
+  .check-deferred { color: var(--text3); }
+
+  /* ── STEP LIST ── */
+  .steps { display: flex; flex-direction: column; gap: 10px; counter-reset: steps; }
+
+  .step {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 12px 14px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    counter-increment: steps;
+  }
+
+  .step-num {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    font-weight: 700;
+  }
+
+  .step-content { flex: 1; }
+  .step-title { font-weight: 600; color: #fff; font-size: 13px; margin-bottom: 4px; }
+  .step-desc { color: var(--text2); font-size: 12px; }
+
+  .step-auto .step-num { background: rgba(0,255,157,0.1); border-color: rgba(0,255,157,0.2); color: var(--accent3); }
+  .step-manual .step-num { background: rgba(255,170,0,0.1); border-color: rgba(255,170,0,0.2); color: var(--warn); }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 24px 0;
+    margin-top: 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  footer p { font-family: var(--mono); font-size: 11px; color: var(--text3); }
+
+  /* ── ANIMATIONS ── */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeIn 0.4s ease forwards;
+  }
+
+  @keyframes fadeIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  section:nth-child(1) { animation-delay: 0.05s; }
+  section:nth-child(2) { animation-delay: 0.1s; }
+  section:nth-child(3) { animation-delay: 0.15s; }
+  section:nth-child(4) { animation-delay: 0.2s; }
+  section:nth-child(5) { animation-delay: 0.25s; }
+
+  /* ── SEARCH ── */
+  .search-wrap {
+    position: relative;
+    max-width: 300px;
+    margin-bottom: 16px;
+  }
+
+  .search-wrap input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 5px;
+    padding: 7px 12px 7px 32px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .search-wrap input:focus { border-color: var(--accent); }
+  .search-wrap input::placeholder { color: var(--text3); }
+
+  .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text3);
+    font-size: 12px;
+  }
+
+  /* ── COPY BUTTON ── */
+  .copy-btn {
+    background: none;
+    border: 1px solid var(--border2);
+    color: var(--text3);
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-family: var(--mono);
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    float: right;
+    margin-left: 8px;
+  }
+
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { border-color: var(--accent3); color: var(--accent3); }
+
+  .tag {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 3px;
+    font-family: var(--mono);
+    font-size: 10px;
+    background: rgba(123,97,255,0.1);
+    color: var(--accent2);
+    border: 1px solid rgba(123,97,255,0.2);
+    margin-left: 6px;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <header class="fade-in">
+    <div class="header-top">
+      <div>
+        <div class="site-label">// homelab reference</div>
+        <h1>Carl's <span>Homelab</span></h1>
+        <p class="subtitle">Raspberry Pi 4 · highcarlsagan.dev · Self-hosted stack behind Cloudflare Tunnel + Authelia 2FA</p>
+        <nav>
+          <a href="#infra">Infrastructure</a>
+          <a href="#services">Services</a>
+          <a href="#sections">Sections</a>
+          <a href="#recovery">Recovery</a>
+          <a href="#gotchas">Gotchas</a>
+          <a href="#pending">Pending</a>
+          <a href="#email">Email</a>
+          <a href="#newservice">Add Service</a>
+          <a href="#esp32">ESP32 Devices</a>
+        </nav>
+      </div>
+      <div class="header-meta">
+        <span class="pill pill-green"><span class="dot"></span>ALL SYSTEMS UP</span>
+        <span class="pill pill-blue">Updated 2026-03-21</span>
+        <span class="pill pill-purple">9 services monitored</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- INFRASTRUCTURE -->
+  <section id="infra" class="fade-in">
+    <div class="section-header">
+      <div class="section-icon icon-blue">⬡</div>
+      <div>
+        <div class="section-num">01 // INFRASTRUCTURE</div>
+        <h2>Network & Access</h2>
+      </div>
+    </div>
+
+    <div class="grid3" style="margin-bottom:16px">
+      <div class="card">
+        <div class="card-label">Pi LAN IP</div>
+        <div class="card-value">192.168.0.100</div>
+        <div class="card-sub">Static via nmcli · eth0</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Pi Tailscale IP</div>
+        <div class="card-value">100.99.184.127</div>
+        <div class="card-sub">Key expiry disabled</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Arch PC Tailscale</div>
+        <div class="card-value">100.121.91.124</div>
+        <div class="card-sub">WiFi: 192.168.0.26</div>
+      </div>
+      <div class="card">
+        <div class="card-label">SSH</div>
+        <div class="card-value">port 2222</div>
+        <div class="card-sub">Key auth only · fail2ban active</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Domain</div>
+        <div class="card-value">highcarlsagan.dev</div>
+        <div class="card-sub">Cloudflare registrar</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Tunnel ID</div>
+        <div class="card-value" style="font-size:10px">344e646f-5867-47ad-88dd-1ee169051622</div>
+        <div class="card-sub">cloudflared · 4 connections</div>
+      </div>
+    </div>
+
+    <div class="code-block">
+<span class="cmt"># SSH aliases (in ~/.ssh/config on Arch PC)</span>
+<span class="cmd">ssh pi</span>       <span class="cmt"># LAN — 192.168.0.100 port 2222</span>
+<span class="cmd">ssh pi-ts</span>    <span class="cmt"># Tailscale — 100.99.184.127 port 2222</span>
+
+<span class="cmt"># Traffic flow</span>
+Browser → Cloudflare CDN → Tunnel → cloudflared → Caddy → Authelia → Backend
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services" class="fade-in">
+    <div class="section-header">
+      <div class="section-icon icon-purple">◈</div>
+      <div>
+        <div class="section-num">02 // SERVICES</div>
+        <h2>Service Port Map</h2>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Service</th>
+            <th>Port</th>
+            <th>Method</th>
+            <th>URL</th>
+            <th>Status</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>SSH</td><td class="mono">2222</td><td class="mono2">native</td><td class="mono2">—</td><td><span class="status status-up">● UP</span></td><td class="mono2">fail2ban, key only</td></tr>
+          <tr><td>Caddy</td><td class="mono">443/80</td><td class="mono2">native xcaddy</td><td class="mono2">—</td><td><span class="status status-up">● UP</span></td><td class="mono2">PATCHED build — do not reinstall</td></tr>
+          <tr><td>Authelia</td><td class="mono">9091</td><td class="mono2">native binary</td><td class="mono3">auth.highcarlsagan.dev</td><td><span class="status status-up">● UP</span></td><td class="mono2">user: mak, TOTP</td></tr>
+          <tr><td>cloudflared</td><td class="mono">outbound</td><td class="mono2">native</td><td class="mono2">—</td><td><span class="status status-up">● UP</span></td><td class="mono2">4 connections, systemd</td></tr>
+          <tr><td>Pi-hole</td><td class="mono">8888/53</td><td class="mono2">Docker</td><td class="mono3">pihole.highcarlsagan.dev</td><td><span class="status status-up">● UP</span></td><td class="mono2">pihole/pihole:latest</td></tr>
+          <tr><td>Home Assistant</td><td class="mono">8123</td><td class="mono2">Docker</td><td class="mono3">ha.highcarlsagan.dev</td><td><span class="status status-up">● UP</span></td><td class="mono2">--privileged, /run/dbus</td></tr>
+          <tr><td>Mosquitto MQTT</td><td class="mono">1883</td><td class="mono2">native apt</td><td class="mono2">—</td><td><span class="status status-up">● UP</span></td><td class="mono2">user: mqttuser</td></tr>
+          <tr><td>Filebrowser</td><td class="mono">3000</td><td class="mono2">native binary</td><td class="mono3">files.highcarlsagan.dev</td><td><span class="status status-up">● UP</span></td><td class="mono2">root: /srv/filebrowser</td></tr>
+          <tr><td>Passives Tracker</td><td class="mono">8080</td><td class="mono2">Python/systemd</td><td class="mono3">passive.highcarlsagan.dev</td><td><span class="status status-up">● UP</span></td><td class="mono2">loginctl linger</td></tr>
+          <tr><td>Uptime Kuma</td><td class="mono">3001</td><td class="mono2">Docker</td><td class="mono3">status.highcarlsagan.dev</td><td><span class="status status-up">● UP</span></td><td class="mono2">louislam/uptime-kuma:1</td></tr>
+          <tr><td>qBittorrent</td><td class="mono">8081</td><td class="mono2">Docker</td><td class="mono3">torrent.highcarlsagan.dev</td><td><span class="status status-up">● UP</span></td><td class="mono2">downloads → /srv/filebrowser/downloads</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:16px">
+      <div class="alert alert-info">
+        <span class="alert-icon">ℹ</span>
+        <span>All subdomains are protected by Authelia 2FA (username: <strong>mak</strong> + Google Authenticator TOTP). The exception is <strong>auth.highcarlsagan.dev</strong> which is the Authelia portal itself.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION STATUS -->
+  <section id="sections" class="fade-in">
+    <div class="section-header">
+      <div class="section-icon icon-green">▦</div>
+      <div>
+        <div class="section-num">03 // PROGRESS</div>
+        <h2>Section Status</h2>
+      </div>
+    </div>
+
+    <ul class="checklist">
+      <li class="check-done"><span class="check-icon">✓</span><span><strong>Section 01</strong> — Pi Foundation · OS, static IP, SSH, fail2ban, Docker</span></li>
+      <li class="check-done"><span class="check-icon">✓</span><span><strong>Section 02</strong> — Tailscale · mesh, ACLs, DNS override enabled</span></li>
+      <li class="check-done"><span class="check-icon">✓</span><span><strong>Section 03</strong> — Cloudflare · domain, tunnel, DDNS, 8 CNAME records</span></li>
+      <li class="check-done"><span class="check-icon">✓</span><span><strong>Section 04</strong> — Caddy + Authelia · patched build, SSL, 2FA on all subdomains</span></li>
+      <li class="check-done"><span class="check-icon">✓</span><span><strong>Section 05</strong> — Pi-hole · Docker, DNS working, Tailscale override enabled</span></li>
+      <li class="check-done"><span class="check-icon">✓</span><span><strong>Section 06</strong> — Home Assistant + Mosquitto MQTT · onboarded, MQTT connected</span></li>
+      <li class="check-done"><span class="check-icon">✓</span><span><strong>Section 07</strong> — Filebrowser · binary install, /srv/filebrowser root</span></li>
+      <li class="check-done"><span class="check-icon">✓</span><span><strong>Section 08</strong> — Passives Tracker · migrated from Arch PC, systemd service</span></li>
+      <li class="check-pending"><span class="check-icon">◌</span><span><strong>Section 09</strong> — Arch PC Integration · <em>blocked on ethernet cable (arriving soon)</em></span></li>
+      <li class="check-done"><span class="check-icon">✓</span><span><strong>Section 10</strong> — Backup + Recovery · git repo, restore.sh, daily cron at 2am</span></li>
+      <li class="check-done"><span class="check-icon">✓</span><span><strong>Section 11</strong> — qBittorrent + Uptime Kuma · both running and monitored</span></li>
+      <li class="check-deferred"><span class="check-icon">—</span><span><strong>Section 12</strong> — Troubleshooting Reference · to be populated</span></li>
+    </ul>
+  </section>
+
+  <!-- RECOVERY -->
+  <section id="recovery" class="fade-in">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">↺</div>
+      <div>
+        <div class="section-num">04 // DISASTER RECOVERY</div>
+        <h2>New SD Card Recovery</h2>
+      </div>
+    </div>
+
+    <div class="alert alert-info" style="margin-bottom:16px">
+      <span class="alert-icon">ℹ</span>
+      <span>On sudden power loss all services restart automatically on reboot — no manual action needed. This section covers full SD card replacement only.</span>
+    </div>
+
+    <div class="grid2" style="margin-bottom:20px">
+      <div>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:8px;font-family:var(--mono);letter-spacing:0.05em">AUTOMATED (restore.sh handles)</p>
+        <ul class="checklist">
+          <li class="check-done"><span class="check-icon">✓</span><span>System update + base deps</span></li>
+          <li class="check-done"><span class="check-icon">✓</span><span>Docker install</span></li>
+          <li class="check-done"><span class="check-icon">✓</span><span>Tailscale install</span></li>
+          <li class="check-done"><span class="check-icon">✓</span><span>cloudflared install + config restore</span></li>
+          <li class="check-done"><span class="check-icon">✓</span><span>Caddy patched build</span></li>
+          <li class="check-done"><span class="check-icon">✓</span><span>Authelia binary install + config restore</span></li>
+          <li class="check-done"><span class="check-icon">✓</span><span>Mosquitto install + config restore</span></li>
+          <li class="check-done"><span class="check-icon">✓</span><span>All Docker containers started</span></li>
+          <li class="check-done"><span class="check-icon">✓</span><span>Passives Tracker + systemd service</span></li>
+          <li class="check-done"><span class="check-icon">✓</span><span>All services enabled on boot</span></li>
+        </ul>
+      </div>
+      <div>
+        <p style="font-size:12px;color:var(--text3);margin-bottom:8px;font-family:var(--mono);letter-spacing:0.05em">MANUAL (secrets — not in repo)</p>
+        <ul class="checklist">
+          <li class="check-pending"><span class="check-icon">!</span><span>Restore <code style="font-size:11px">/etc/authelia/users.yml</code> from Bitwarden</span></li>
+          <li class="check-pending"><span class="check-icon">!</span><span>Add CLOUDFLARE_API_TOKEN to Caddy env</span></li>
+          <li class="check-pending"><span class="check-icon">!</span><span>Restore tunnel credentials JSON to ~/.cloudflared/</span></li>
+          <li class="check-pending"><span class="check-icon">!</span><span>Re-create Mosquitto passwd file + fix ownership</span></li>
+          <li class="check-pending"><span class="check-icon">!</span><span>Re-initialize Filebrowser DB + admin user</span></li>
+          <li class="check-pending"><span class="check-icon">!</span><span>sudo tailscale up — re-authenticate</span></li>
+          <li class="check-pending"><span class="check-icon">!</span><span>Re-register TOTP in Google Authenticator</span></li>
+          <li class="check-pending"><span class="check-icon">!</span><span>Enable Tailscale DNS override in admin console</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step step-manual">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Flash new SD card</div>
+          <div class="step-desc">Pi OS Lite 64-bit via Raspberry Pi Imager. Set hostname: <code>4pi</code>, user: <code>pi</code>, enable SSH.</div>
+        </div>
+      </div>
+      <div class="step step-auto">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Clone repo and run restore.sh</div>
+          <div class="step-desc"><code>git clone git@github.com:HighCarlSagan/Carls_Homelab.git && bash Carls_Homelab/restore.sh</code></div>
+        </div>
+      </div>
+      <div class="step step-manual">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Restore secrets from Bitwarden</div>
+          <div class="step-desc">users.yml, Cloudflare token, tunnel credentials JSON, MQTT password, Pi-hole password.</div>
+        </div>
+      </div>
+      <div class="step step-manual">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">Fix Mosquitto passwd ownership</div>
+          <div class="step-desc"><code>sudo chown mosquitto:mosquitto /etc/mosquitto/passwd</code> — always required after recreating passwd file.</div>
+        </div>
+      </div>
+      <div class="step step-manual">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <div class="step-title">Re-register TOTP + enable Tailscale DNS</div>
+          <div class="step-desc">Scan new Authelia QR code in Google Authenticator. Enable DNS override in Tailscale admin console.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px">
+      <div class="alert alert-warn">
+        <span class="alert-icon">⚠</span>
+        <span><strong>Estimated recovery time: 30–45 minutes.</strong> Keep secrets backed up in Bitwarden as secure notes. The daily backup archive at <strong>files.highcarlsagan.dev/files/backups/</strong> contains config snapshots — download before the Pi dies if possible.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- GOTCHAS -->
+  <section id="gotchas" class="fade-in">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">⚡</div>
+      <div>
+        <div class="section-num">05 // CRITICAL NOTES</div>
+        <h2>Gotchas & Deviations from Blueprint</h2>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px">
+
+      <div class="alert alert-danger">
+        <span class="alert-icon">⛔</span>
+        <div><strong>Caddy — DO NOT reinstall from apt.</strong> Custom xcaddy build with patched caddy-dns/cloudflare module. Upstream regex <code>{35,50}</code> rejects Cloudflare's newer <code>cfut_</code> tokens (52 chars). Patched to <code>{35,100}</code>. Source: <code>~/caddy-cloudflare-patched/</code>. Rebuild: <code>cd ~/caddy-cloudflare-patched && ~/go/bin/xcaddy build --with github.com/caddy-dns/cloudflare=.</code></div>
+      </div>
+
+      <div class="alert alert-danger">
+        <span class="alert-icon">⛔</span>
+        <div><strong>Never use nano on Pi.</strong> <code>TERM=xterm-kitty</code> causes "Error opening terminal". Always use <code>sed</code> for config edits. For TUI-based tools, SSH from xterm or alacritty with <code>TERM=xterm-256color</code>.</div>
+      </div>
+
+      <div class="alert alert-warn">
+        <span class="alert-icon">⚠</span>
+        <div><strong>Authelia apt repo is dead.</strong> <code>apt.authelia.com</code> returned 404 — removed from sources.list.d. Authelia installed from GitHub binary. Do not attempt <code>apt install authelia</code>.</div>
+      </div>
+
+      <div class="alert alert-warn">
+        <span class="alert-icon">⚠</span>
+        <div><strong>Pi-hole — always use Docker.</strong> Native installer has hardcoded ncurses dialogs incompatible with Kitty terminal. Pi-hole v6 renamed commands: <code>-w</code> → <code>pihole allow</code>, <code>WEB_PORT</code> → <code>FTLCONF_webserver_port</code>, <code>DNSMASQ_LISTENING</code> → <code>FTLCONF_dns_listeningMode</code>.</div>
+      </div>
+
+      <div class="alert alert-warn">
+        <span class="alert-icon">⚠</span>
+        <div><strong>Mosquitto passwd ownership.</strong> After creating/recreating passwd file with <code>mosquitto_passwd</code>, always run: <code>sudo chown mosquitto:mosquitto /etc/mosquitto/passwd</code>. File created as root — Mosquitto runs as its own user and can't read it.</div>
+      </div>
+
+      <div class="alert alert-warn">
+        <span class="alert-icon">⚠</span>
+        <div><strong>Home Assistant reverse proxy config.</strong> Must be at root level of configuration.yaml, NOT nested under <code>homeassistant:</code>. Correct: <code>http: / use_x_forwarded_for: true / trusted_proxies: [127.0.0.1, ::1]</code></div>
+      </div>
+
+      <div class="alert alert-info">
+        <span class="alert-icon">ℹ</span>
+        <div><strong>Subnet is 192.168.0.x</strong> not 192.168.1.x as in blueprint. Hostname is <code>4pi.local</code> not <code>passive.local</code>. Substitute everywhere when following blueprint instructions.</div>
+      </div>
+
+      <div class="alert alert-info">
+        <span class="alert-icon">ℹ</span>
+        <div><strong>Cloudflare tunnel routing.</strong> Originally routed directly to backend ports — fixed by routing all ingress through Caddy HTTPS:443 with <code>originServerName</code> + <code>noTLSVerify: true</code> per subdomain in <code>/etc/cloudflared/config.yml</code>.</div>
+      </div>
+
+      <div class="alert alert-info">
+        <span class="alert-icon">ℹ</span>
+        <div><strong>Uptime Kuma monitors.</strong> Use <code>http://127.0.0.1:PORT</code> not <code>https://localhost:PORT</code> — services run plain HTTP internally and localhost resolves to IPv6 (::1) which causes ECONNREFUSED.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- DOCKER QUICK REFERENCE -->
+  <section class="fade-in">
+    <div class="section-header">
+      <div class="section-icon icon-blue">◻</div>
+      <div>
+        <div class="section-num">06 // DOCKER</div>
+        <h2>Container Quick Reference</h2>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div>
+        <p style="font-size:11px;color:var(--text3);font-family:var(--mono);letter-spacing:0.05em;margin-bottom:8px">PI-HOLE</p>
+        <div class="code-block" style="font-size:11px">
+<span class="cmd">sudo docker rm -f pihole</span>
+<span class="cmd">sudo docker run -d</span> \
+  --name pihole --network host \
+  --restart unless-stopped \
+  -e <span class="val">FTLCONF_webserver_port</span>=<span class="str">"8888"</span> \
+  -e <span class="val">FTLCONF_dns_listeningMode</span>=<span class="str">"all"</span> \
+  -e <span class="val">TZ</span>=<span class="str">"Asia/Kolkata"</span> \
+  -e <span class="val">WEBPASSWORD</span>=<span class="str">"yourpassword"</span> \
+  -v /etc/pihole:/etc/pihole \
+  pihole/pihole:latest</div>
+      </div>
+      <div>
+        <p style="font-size:11px;color:var(--text3);font-family:var(--mono);letter-spacing:0.05em;margin-bottom:8px">HOME ASSISTANT</p>
+        <div class="code-block" style="font-size:11px">
+<span class="cmd">sudo docker rm -f homeassistant</span>
+<span class="cmd">sudo docker run -d</span> \
+  --name homeassistant \
+  --privileged --network host \
+  --restart unless-stopped \
+  -e <span class="val">TZ</span>=<span class="str">"Asia/Kolkata"</span> \
+  -v /etc/homeassistant:/config \
+  -v /run/dbus:/run/dbus:ro \
+  ghcr.io/home-assistant/home-assistant:stable</div>
+      </div>
+    </div>
+
+    <div style="margin-top:12px">
+      <p style="font-size:11px;color:var(--text3);font-family:var(--mono);letter-spacing:0.05em;margin-bottom:8px">USEFUL COMMANDS</p>
+      <div class="code-block" style="font-size:12px">
+<span class="cmd">sudo docker ps</span>                          <span class="cmt"># list running containers</span>
+<span class="cmd">sudo docker logs</span> &lt;name&gt; --tail 20       <span class="cmt"># recent logs</span>
+<span class="cmd">sudo docker restart</span> &lt;name&gt;              <span class="cmt"># restart container</span>
+<span class="cmd">sudo docker exec</span> &lt;name&gt; &lt;cmd&gt;          <span class="cmt"># run command inside</span>
+<span class="cmd">sudo docker stats</span>                       <span class="cmt"># live resource usage</span></div>
+    </div>
+  </section>
+
+  <!-- PENDING -->
+  <section id="pending" class="fade-in">
+    <div class="section-header">
+      <div class="section-icon icon-yellow">◷</div>
+      <div>
+        <div class="section-num">07 // PENDING</div>
+        <h2>Outstanding Items</h2>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div>
+        <p style="font-size:11px;color:var(--text3);font-family:var(--mono);letter-spacing:0.05em;margin-bottom:10px">BLOCKED ON ETHERNET CABLE</p>
+        <ul class="checklist">
+          <li class="check-pending"><span class="check-icon">◌</span><span>Section 09 — Arch PC static IP on enp8s0</span></li>
+          <li class="check-pending"><span class="check-icon">◌</span><span>Fallback DNS on Arch PC</span></li>
+          <li class="check-pending"><span class="check-icon">◌</span><span>Wake-on-LAN (BIOS + nmcli + HA switch)</span></li>
+          <li class="check-pending"><span class="check-icon">◌</span><span>HA — Arch PC shutdown shell_command</span></li>
+          <li class="check-pending"><span class="check-icon">◌</span><span>Arch PC configs backed up to git repo</span></li>
+        </ul>
+      </div>
+      <div>
+        <p style="font-size:11px;color:var(--text3);font-family:var(--mono);letter-spacing:0.05em;margin-bottom:10px">DEFERRED / FUTURE</p>
+        <ul class="checklist">
+          <li class="check-pending"><span class="check-icon">◌</span><span>HA — Arch PC update notifications via MQTT</span></li>
+          <li class="check-pending"><span class="check-icon">◌</span><span>ESP32 MQTT device integration</span></li>
+          <li class="check-deferred"><span class="check-icon">—</span><span>Pi-hole extra blocklists (until ads get intrusive)</span></li>
+          <li class="check-deferred"><span class="check-icon">—</span><span>Section 12 — Troubleshooting reference</span></li>
+          <li class="check-deferred"><span class="check-icon">—</span><span>Syncthing — phone/PC/Pi file sync (optional)</span></li>
+          <li class="check-deferred"><span class="check-icon">—</span><span>USB SSD boot (reliability upgrade, future)</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- EMAIL -->
+  <section id="email" class="fade-in">
+    <div class="section-header">
+      <div class="section-icon icon-purple">✉</div>
+      <div>
+        <div class="section-num">08 // EMAIL</div>
+        <h2>Custom Domain Email</h2>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-label">Receive</div>
+        <div class="card-value">mayank@highcarlsagan.dev</div>
+        <div class="card-sub">Cloudflare Email Routing → mayank2598@gmail.com</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Send</div>
+        <div class="card-value">Gmail → From field</div>
+        <div class="card-sub">SMTP: smtp.gmail.com:587 · App Password auth</div>
+      </div>
+    </div>
+
+    <div style="margin-top:12px">
+      <div class="alert alert-info">
+        <span class="alert-icon">ℹ</span>
+        <span>To send: compose in Gmail → click <strong>From</strong> field → select <strong>mayank@highcarlsagan.dev</strong>. Original mayank2598@gmail.com is unaffected. Cloudflare Email Routing is free, no mail server required.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- BACKUP INFO -->
+  <section class="fade-in">
+    <div class="section-header">
+      <div class="section-icon icon-green">⊡</div>
+      <div>
+        <div class="section-num">09 // BACKUPS</div>
+        <h2>Backup Strategy</h2>
+      </div>
+    </div>
+
+    <div class="grid3">
+      <div class="card">
+        <div class="card-label">Daily Config Backup</div>
+        <div class="card-value" style="font-size:12px">/srv/filebrowser/backups/</div>
+        <div class="card-sub">Cron: 0 2 * * * · Keeps last 7 days · Accessible via Filebrowser</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Git Repo</div>
+        <div class="card-value" style="font-size:11px">HighCarlSagan/Carls_Homelab</div>
+        <div class="card-sub">All configs + restore.sh · Private repo · master branch</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Secrets (NOT in repo)</div>
+        <div class="card-value" style="font-size:12px;color:var(--warn)">Bitwarden</div>
+        <div class="card-sub">users.yml · CF token · tunnel JSON · MQTT passwd</div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ADD NEW SERVICE -->
+  <section id="newservice" class="fade-in">
+    <div class="section-header">
+      <div class="section-icon icon-blue">＋</div>
+      <div>
+        <div class="section-num">10 // EXTENDING</div>
+        <h2>Adding a New Service / Page</h2>
+      </div>
+    </div>
+
+    <p style="color:var(--text2);font-size:13px;margin-bottom:16px">Every new service follows the same 5-step pattern: install → pick a port → add to Caddyfile → add Cloudflare CNAME → add cloudflared ingress rule.</p>
+
+    <div class="steps">
+      <div class="step step-manual">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Install the service and pick a free port</div>
+          <div class="step-desc">Check the port map above to avoid conflicts. Recommended free ports: 8082, 8083, 8090, 3002, 4000+. Run the service bound to <code>0.0.0.0</code> or <code>127.0.0.1</code> on your chosen port.</div>
+        </div>
+      </div>
+      <div class="step step-manual">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Add entry to Caddyfile</div>
+          <div class="step-desc">Edit <code>/etc/caddy/Caddyfile</code> using sed. Add a new block — include <code>import authelia</code> to protect it, or omit for a public page.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block" style="margin:12px 0">
+<span class="cmt"># Pattern for a PROTECTED service (requires Authelia login)</span>
+<span class="val">myapp.highcarlsagan.dev</span> {
+  import tls_cloudflare
+  import authelia
+  reverse_proxy <span class="str">http://127.0.0.1:PORT</span>
+}
+
+<span class="cmt"># Pattern for a PUBLIC page (no auth — use carefully)</span>
+<span class="val">myapp.highcarlsagan.dev</span> {
+  import tls_cloudflare
+  reverse_proxy <span class="str">http://127.0.0.1:PORT</span>
+}
+
+<span class="cmt"># Reload Caddy after editing</span>
+<span class="cmd">sudo systemctl reload caddy</span></div>
+
+    <div class="steps">
+      <div class="step step-manual">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Add Cloudflare DNS CNAME record</div>
+          <div class="step-desc">Cloudflare dashboard → highcarlsagan.dev → DNS → Add record.<br>
+          Type: <code>CNAME</code> · Name: <code>myapp</code> · Target: <code>344e646f-5867-47ad-88dd-1ee169051622.cfargotunnel.com</code> · Proxy: ON</div>
+        </div>
+      </div>
+      <div class="step step-manual">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">Add ingress rule to cloudflared config</div>
+          <div class="step-desc">Edit <code>/etc/cloudflared/config.yml</code> — add before the catch-all <code>http_status:404</code> line.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block" style="margin:12px 0">
+<span class="cmt"># Add this block to /etc/cloudflared/config.yml ingress section</span>
+  - hostname: <span class="val">myapp.highcarlsagan.dev</span>
+    service: <span class="str">https://localhost:443</span>
+    originRequest:
+      noTLSVerify: <span class="val">true</span>
+      originServerName: <span class="val">myapp.highcarlsagan.dev</span>
+
+<span class="cmt"># Restart cloudflared after editing</span>
+<span class="cmd">sudo systemctl restart cloudflared</span></div>
+
+    <div class="steps">
+      <div class="step step-auto">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <div class="step-title">Add monitor to Uptime Kuma + commit to git</div>
+          <div class="step-desc">status.highcarlsagan.dev → Add Monitor → HTTP → <code>http://127.0.0.1:PORT</code>. Then update the git repo.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block" style="margin:12px 0">
+<span class="cmt"># Commit updated configs to git</span>
+<span class="cmd">cd</span> ~/homelab-configs
+<span class="cmd">sudo cp</span> /etc/caddy/Caddyfile caddy/
+<span class="cmd">sudo cp</span> /etc/cloudflared/config.yml cloudflared/
+<span class="cmd">git add -A</span>
+<span class="cmd">git commit -m</span> <span class="str">"add: myapp service on port PORT"</span>
+<span class="cmd">git push</span></div>
+
+    <div class="alert alert-info">
+      <span class="alert-icon">ℹ</span>
+      <span>For a <strong>static HTML page</strong> (like this reference doc): drop the file in <code>/srv/filebrowser/</code> and it's immediately accessible via Filebrowser. To give it a clean subdomain, point Caddy to <code>file_server { root /srv/filebrowser }</code> or serve it from a simple Python server on a free port.</span>
+    </div>
+  </section>
+
+  <!-- ESP32 DEVICES -->
+  <section id="esp32" class="fade-in">
+    <div class="section-header">
+      <div class="section-icon icon-purple">⬡</div>
+      <div>
+        <div class="section-num">11 // IOT</div>
+        <h2>Adding ESP32 Devices</h2>
+      </div>
+    </div>
+
+    <p style="color:var(--text2);font-size:13px;margin-bottom:16px">ESP32 devices communicate with Home Assistant via Mosquitto MQTT using HA's auto-discovery protocol. When configured correctly, HA automatically creates the device and all its entities — no YAML editing needed.</p>
+
+    <div class="grid2" style="margin-bottom:16px">
+      <div class="card">
+        <div class="card-label">MQTT Broker</div>
+        <div class="card-value">192.168.0.100</div>
+        <div class="card-sub">Port: 1883 · User: mqttuser</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Discovery Prefix</div>
+        <div class="card-value">homeassistant/</div>
+        <div class="card-sub">HA listens on this prefix for auto-discovery</div>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step step-manual">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Flash ESP32 with firmware</div>
+          <div class="step-desc">Use PlatformIO or Arduino IDE. Add library: <code>knolleary/PubSubClient</code>. Set WiFi credentials, MQTT broker IP, device ID (unique per device), and MQTT password.</div>
+        </div>
+      </div>
+      <div class="step step-manual">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Publish MQTT discovery payload on boot</div>
+          <div class="step-desc">On connect, publish a JSON config message to <code>homeassistant/sensor/DEVICE_ID_sensorname/config</code> with <code>retain: true</code>. This tells HA what the device is and what topics to subscribe to.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block" style="margin:12px 0;font-size:11px">
+<span class="cmt">// Minimal discovery payload (publish once on connect, retained)</span>
+<span class="cmt">// Topic: homeassistant/sensor/esp32_node01_temp/config</span>
+{
+  <span class="str">"name"</span>:         <span class="str">"Temperature"</span>,
+  <span class="str">"uniq_id"</span>:      <span class="str">"esp32_node01_temp"</span>,
+  <span class="str">"stat_t"</span>:       <span class="str">"homelab/esp32_node01/temperature"</span>,   <span class="cmt">// where readings are published</span>
+  <span class="str">"unit_of_meas"</span>: <span class="str">"°C"</span>,
+  <span class="str">"dev_cla"</span>:      <span class="str">"temperature"</span>,
+  <span class="str">"dev"</span>: {
+    <span class="str">"ids"</span>:  [<span class="str">"esp32_node01"</span>],
+    <span class="str">"name"</span>: <span class="str">"Workshop Node 01"</span>,
+    <span class="str">"mdl"</span>:  <span class="str">"ESP32"</span>,
+    <span class="str">"mf"</span>:   <span class="str">"Espressif"</span>
+  }
+}</div>
+
+    <div class="steps">
+      <div class="step step-auto">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">HA auto-discovers the device</div>
+          <div class="step-desc">After the ESP32 boots and publishes discovery, go to HA → Settings → Devices & Services → Devices. The device appears automatically with all entities. No YAML editing needed.</div>
+        </div>
+      </div>
+      <div class="step step-manual">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">Publish sensor readings periodically</div>
+          <div class="step-desc">Publish plain values (e.g. <code>"23.4"</code>) to the state topic defined in discovery. HA reads and stores them automatically.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="code-block" style="margin:12px 0;font-size:11px">
+<span class="cmt">// Publish a sensor reading every 30 seconds</span>
+<span class="cmt">// Topic: homelab/esp32_node01/temperature</span>
+<span class="cmt">// Payload: "23.4"  (plain string, not JSON)</span>
+
+<span class="cmt">// For a switch/relay, add a command topic to discovery:</span>
+<span class="str">"cmd_t"</span>: <span class="str">"homelab/esp32_node01/relay/set"</span>   <span class="cmt">// HA sends "ON" or "OFF" here</span>
+<span class="cmt">// Subscribe to cmd_t in firmware and toggle GPIO accordingly</span></div>
+
+    <div class="steps">
+      <div class="step step-manual">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <div class="step-title">Add device to Uptime Kuma (optional)</div>
+          <div class="step-desc">Add a TCP monitor to <code>DEVICE_LAN_IP:80</code> if the ESP32 runs a web server, or monitor via MQTT topic freshness using a HA automation that triggers an alert if the device goes silent.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-warn">
+      <span class="alert-icon">⚠</span>
+      <span><strong>Device ID must be unique per ESP32.</strong> Use a naming convention like <code>esp32_location_number</code> (e.g. <code>esp32_workshop_01</code>, <code>esp32_desk_01</code>). Duplicate IDs cause HA to merge two devices into one and break entity tracking.</span>
+    </div>
+
+    <div class="alert alert-info">
+      <span class="alert-icon">ℹ</span>
+      <span><strong>Full firmware template</strong> is in the git repo at <code>Carls_Homelab/</code> (to be added). It includes WiFi reconnect logic, MQTT reconnect with backoff, discovery for sensor + relay, and OTA update support.</span>
+    </div>
+
+    <div style="margin-top:16px">
+      <p style="font-size:11px;color:var(--text3);font-family:var(--mono);letter-spacing:0.05em;margin-bottom:10px">DEVICE REGISTRY</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Device ID</th>
+              <th>Location</th>
+              <th>Sensors / Actuators</th>
+              <th>State Topic</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono2">—</td>
+              <td style="color:var(--text3)">No devices yet</td>
+              <td style="color:var(--text3)">—</td>
+              <td style="color:var(--text3)">—</td>
+              <td><span class="status status-pending">◌ PENDING</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:11px;color:var(--text3);margin-top:8px">Update this table when adding ESP32 devices. Edit the HTML directly — add a &lt;tr&gt; row per device.</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>// highcarlsagan.dev homelab · Raspberry Pi 4 · 2026-03-21</p>
+    <p>github.com/HighCarlSagan/Carls_Homelab</p>
+  </footer>
+
+</div>
+
+<script>
+  // Copy button functionality
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const text = btn.dataset.copy;
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    });
+  });
+
+  // Fade in sections on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.05 });
+
+  document.querySelectorAll('section').forEach(s => {
+    s.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+    observer.observe(s);
+  });
+</script>
+
+</body>
+</html>
