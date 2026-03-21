@@ -1,0 +1,54 @@
+
+server:
+  address: tcp://127.0.0.1:9091
+  endpoints:
+    authz:
+      forward-auth:
+        implementation: ForwardAuth
+
+log:
+  level: warn
+
+identity_validation:
+  reset_password:
+    jwt_secret: /etc/authelia/secrets/jwt_secret
+
+totp:
+  issuer: highcarlsagan.dev
+
+authentication_backend:
+  file:
+    path: /etc/authelia/users.yml
+
+access_control:
+  default_policy: deny
+  rules:
+    - domain: "*.highcarlsagan.dev"
+      policy: two_factor
+
+session:
+  name: authelia_session
+  secret: /etc/authelia/secrets/session_secret
+  same_site: lax
+  inactivity: 2h
+  expiration: 12h
+  cookies:
+    - domain: highcarlsagan.dev
+      authelia_url: https://auth.highcarlsagan.dev
+      default_redirection_url: https://highcarlsagan.dev
+      inactivity: 2h
+      expiration: 12h
+
+regulation:
+  max_retries: 3
+  find_time: 2m
+  ban_time: 5m
+
+storage:
+  encryption_key: /etc/authelia/secrets/storage_key
+  local:
+    path: /etc/authelia/db.sqlite3
+
+notifier:
+  filesystem:
+    filename: /etc/authelia/notifications.txt
