@@ -1,0 +1,34 @@
+tunnel: 344e646f-5867-47ad-88dd-1ee169051622
+credentials-file: /home/pi/.cloudflared/344e646f-5867-47ad-88dd-1ee169051622.json
+ingress:
+  - hostname: ha.highcarlsagan.dev
+    service: https://localhost:443
+    originRequest:
+      noTLSVerify: true
+      originServerName: ha.highcarlsagan.dev
+  - hostname: pihole.highcarlsagan.dev
+    service: https://localhost:443
+    originRequest:
+      noTLSVerify: true
+      originServerName: pihole.highcarlsagan.dev
+  - hostname: files.highcarlsagan.dev
+    service: https://localhost:443
+    originRequest:
+      noTLSVerify: true
+      originServerName: files.highcarlsagan.dev
+  - hostname: passive.highcarlsagan.dev
+    service: https://localhost:443
+    originRequest:
+      noTLSVerify: true
+      originServerName: passive.highcarlsagan.dev
+  - hostname: torrent.highcarlsagan.dev
+    service: https://localhost:443
+    originRequest:
+      noTLSVerify: true
+      originServerName: torrent.highcarlsagan.dev
+  - hostname: auth.highcarlsagan.dev
+    service: https://localhost:443
+    originRequest:
+      noTLSVerify: true
+      originServerName: auth.highcarlsagan.dev
+  - service: http_status:404

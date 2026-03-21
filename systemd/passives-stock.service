@@ -1,0 +1,24 @@
+[Unit]
+Description=Passives Stock Tracker — bench inventory server
+After=network.target
+
+[Service]
+# ── EDIT THESE TWO LINES ──────────────────────────────────────────
+# Replace /home/pi with your actual home directory.
+# Replace the path if you move the folder somewhere else.
+WorkingDirectory=/home/pi/passives-stock
+ExecStart=/usr/bin/python3 /home/pi/passives-stock/server.py --host 0.0.0.0 --port 8080
+# ─────────────────────────────────────────────────────────────────
+
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# Keep the service alive if it crashes, try 3 times within 60s
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+[Install]
+# 'default.target' = starts when your graphical session is ready
+WantedBy=default.target

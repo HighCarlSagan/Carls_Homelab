@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PASSIVES.STOCK — Bench Inventory</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #080a0d;
+  --surface:   #0f1117;
+  --surface2:  #161920;
+  --surface3:  #1c1f28;
+  --border:    #272b38;
+  --border2:   #333848;
+  --accent:    #d4ff00;
+  --accent-dim:#8faa00;
+  --red:       #ff5252;
+  --amber:     #ffb300;
+  --green:     #00e676;
+  --blue:      #40c8ff;
+  --purple:    #c084fc;
+  --orange:    #ff7043;
+  --teal:      #26d7b8;
+  --pink:      #f472b6;
+  --text:      #f0f2f8;
+  --text-dim:  #adb5c9;
+  --text-muted:#5a6070;
+  --mono:      'Space Mono', monospace;
+  --display:   'Bebas Neue', sans-serif;
+  --body:      'DM Sans', sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  font-size: 14px;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.06) 3px, rgba(0,0,0,0.06) 4px);
+  pointer-events: none; z-index: 9999;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--surface);
+  border-bottom: 2px solid var(--accent);
+  padding: 0 28px;
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 56px;
+  box-shadow: 0 0 40px rgba(212,255,0,0.07);
+}
+.logo { font-family: var(--display); font-size: 26px; letter-spacing: 3px; color: var(--accent); line-height: 1; }
+.logo span { color: var(--text-muted); font-size: 11px; font-family: var(--mono); letter-spacing: 1px; display: block; margin-top: -3px; }
+
+.header-stats { display: flex; gap: 24px; align-items: center; }
+.stat-pill { font-family: var(--mono); font-size: 10px; color: var(--text-muted); display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+.stat-pill strong { font-size: 15px; color: var(--text); font-weight: 700; }
+.stat-pill.warn strong { color: var(--amber); }
+.stat-pill.danger strong { color: var(--red); }
+.stat-pill.ok strong { color: var(--green); }
+
+/* ── LAYOUT ── */
+.layout { display: grid; grid-template-columns: 210px 1fr; min-height: calc(100vh - 56px); }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 16px 0;
+  position: sticky; top: 56px;
+  height: calc(100vh - 56px); overflow-y: auto;
+}
+.sidebar-section { padding: 5px 16px; font-family: var(--mono); font-size: 9px; letter-spacing: 2px; color: var(--text-muted); text-transform: uppercase; margin-top: 10px; }
+.nav-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 16px; cursor: pointer; transition: background 0.12s;
+  border-left: 3px solid transparent; gap: 8px;
+}
+.nav-item:hover { background: var(--surface2); }
+.nav-item.active { background: var(--surface2); border-left-color: var(--accent); }
+.nav-label { font-family: var(--mono); font-size: 11px; color: var(--text-dim); flex: 1; }
+.nav-item.active .nav-label { color: var(--accent); }
+.nav-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.nav-count { font-family: var(--mono); font-size: 9px; color: var(--text-muted); background: var(--surface3); padding: 1px 6px; border-radius: 3px; }
+
+/* ── MAIN ── */
+main { padding: 20px 24px; overflow-y: auto; }
+
+/* ── TOOLBAR ── */
+.toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.search-box {
+  background: var(--surface2); border: 1px solid var(--border2); border-radius: 4px;
+  padding: 7px 12px; font-family: var(--mono); font-size: 11px; color: var(--text);
+  width: 220px; outline: none; transition: border-color 0.15s;
+}
+.search-box::placeholder { color: var(--text-muted); }
+.search-box:focus { border-color: var(--accent); }
+.filter-btn {
+  background: var(--surface2); border: 1px solid var(--border2); border-radius: 4px;
+  padding: 6px 12px; font-family: var(--mono); font-size: 10px; color: var(--text-dim);
+  cursor: pointer; transition: all 0.12s; white-space: nowrap;
+}
+.filter-btn:hover { color: var(--text); background: var(--surface3); }
+.filter-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(212,255,0,0.05); }
+.spacer { flex: 1; }
+.action-btn {
+  background: var(--accent); border: none; border-radius: 4px;
+  padding: 7px 14px; font-family: var(--mono); font-size: 10px;
+  color: #000; font-weight: 700; cursor: pointer; transition: opacity 0.12s; letter-spacing: 0.5px;
+}
+.action-btn:hover { opacity: 0.85; }
+.action-btn.secondary {
+  background: var(--surface2); color: var(--text-dim); border: 1px solid var(--border2); font-weight: 400;
+}
+.action-btn.secondary:hover { color: var(--text); }
+.action-btn.add-btn {
+  background: rgba(212,255,0,0.1); color: var(--accent); border: 1px solid rgba(212,255,0,0.3);
+}
+.action-btn.add-btn:hover { background: rgba(212,255,0,0.18); }
+
+/* ── SECTION HEADER ── */
+.section-block { margin-bottom: 28px; }
+.section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.section-title { font-family: var(--display); font-size: 22px; letter-spacing: 2px; color: var(--text); }
+.section-badge { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; padding: 2px 8px; border-radius: 2px; text-transform: uppercase; }
+.section-sub { font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin-left: auto; }
+
+/* ── TABLE ── */
+.parts-table { width: 100%; border-collapse: collapse; }
+.parts-table thead th {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1.5px;
+  color: var(--text-dim); text-transform: uppercase;
+  padding: 7px 8px; text-align: left; border-bottom: 1px solid var(--border2); white-space: nowrap;
+}
+.parts-table tbody tr { border-bottom: 1px solid rgba(39,43,56,0.7); transition: background 0.1s; }
+.parts-table tbody tr:hover { background: var(--surface2); }
+.parts-table tbody tr.stocked { opacity: 0.45; }
+.parts-table tbody tr.stocked .value-cell { text-decoration: line-through; text-decoration-color: var(--text-muted); }
+.parts-table td { padding: 8px 8px; vertical-align: middle; }
+
+/* checkbox */
+.check-cell { width: 32px; }
+.part-check {
+  appearance: none; -webkit-appearance: none;
+  width: 15px; height: 15px; border: 1.5px solid var(--border2); border-radius: 3px;
+  cursor: pointer; background: transparent; position: relative; transition: all 0.12s; display: block;
+}
+.part-check:checked { background: var(--accent); border-color: var(--accent); }
+.part-check:checked::after { content: '✓'; position: absolute; top: -2px; left: 1px; font-size: 11px; color: #000; font-weight: 700; }
+
+.value-cell { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--text); min-width: 72px; }
+.pkg-cell { font-family: var(--mono); font-size: 10px; color: var(--text-dim); }
+
+/* ── EDITABLE CELLS ── */
+.editable-cell {
+  font-family: var(--mono); font-size: 11px; color: var(--text);
+  background: transparent; border: 1px solid transparent;
+  border-radius: 3px; padding: 3px 6px; width: 100%; min-width: 90px;
+  outline: none; transition: all 0.15s; cursor: text;
+}
+.editable-cell:hover { border-color: var(--border2); background: var(--surface3); }
+.editable-cell:focus { border-color: var(--accent); background: var(--surface3); color: var(--accent); }
+
+/* ── DROPDOWNS ── */
+.cell-select {
+  background: var(--surface3); border: 1px solid var(--border2); border-radius: 3px;
+  padding: 4px 6px; font-family: var(--mono); font-size: 10px; color: var(--text);
+  cursor: pointer; outline: none; transition: border-color 0.12s;
+  -webkit-appearance: none; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235a6070'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 6px center; padding-right: 20px;
+}
+.cell-select:focus { border-color: var(--accent); }
+.cell-select option { background: var(--surface3); color: var(--text); }
+
+.prio-cell { width: 70px; text-align: center; }
+.prio-stars { font-size: 11px; letter-spacing: -1px; }
+
+/* ── QTY CONTROL ── */
+.qty-cell { width: 150px; }
+.qty-control { display: flex; align-items: center; gap: 5px; }
+.qty-btn {
+  width: 22px; height: 22px; background: var(--surface3); border: 1px solid var(--border2);
+  border-radius: 3px; color: var(--text-dim); font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.1s; flex-shrink: 0; line-height: 1; font-family: var(--mono);
+}
+.qty-btn:hover { background: var(--surface2); color: var(--text); }
+.qty-btn.plus:hover { color: var(--accent); border-color: var(--accent-dim); }
+.qty-btn.minus:hover { color: var(--red); border-color: var(--red); }
+.qty-input {
+  width: 52px; background: var(--surface3); border: 1px solid var(--border2);
+  border-radius: 3px; padding: 3px 5px; font-family: var(--mono); font-size: 11px;
+  color: var(--text); text-align: center; outline: none; transition: border-color 0.12s;
+}
+.qty-input:focus { border-color: var(--accent); }
+
+/* ── STATUS ── */
+.status-cell { width: 80px; }
+.status-bar { position: relative; height: 3px; background: var(--surface3); border-radius: 2px; margin-top: 3px; overflow: hidden; }
+.status-fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 2px; transition: width 0.3s ease; }
+.status-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.5px; }
+
+/* ── GROUP ROW ── */
+.group-row td {
+  background: var(--surface2); padding: 5px 8px;
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1px;
+  color: var(--text-muted); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+}
+
+/* ── DEL BTN ── */
+.del-btn {
+  background: transparent; border: none; color: var(--text-muted);
+  cursor: pointer; font-size: 14px; padding: 2px 6px; border-radius: 3px;
+  transition: all 0.1s; line-height: 1;
+}
+.del-btn:hover { color: var(--red); background: rgba(255,82,82,0.1); }
+
+/* ── PROGRESS SUMMARY ── */
+.progress-summary { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px,1fr)); gap: 8px; margin-bottom: 16px; }
+.prog-card { background: var(--surface); border: 1px solid var(--border); border-radius: 5px; padding: 12px 14px; }
+.prog-label { font-family: var(--mono); font-size: 9px; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+.prog-value { font-family: var(--display); font-size: 26px; letter-spacing: 1px; line-height: 1; }
+.prog-sub { font-family: var(--mono); font-size: 9px; color: var(--text-muted); margin-top: 2px; }
+
+/* ── PAGE SECTIONS ── */
+.page-section { display: none; }
+.page-section.active { display: block; }
+
+/* ── CONTROLLERS TABLE ── */
+.ctrl-table { width: 100%; border-collapse: collapse; }
+.ctrl-table thead th {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 1.5px;
+  color: var(--text-dim); text-transform: uppercase;
+  padding: 7px 8px; text-align: left; border-bottom: 1px solid var(--border2); white-space: nowrap;
+}
+.ctrl-table tbody tr { border-bottom: 1px solid rgba(39,43,56,0.7); transition: background 0.1s; }
+.ctrl-table tbody tr:hover { background: var(--surface2); }
+.ctrl-table td { padding: 8px 8px; vertical-align: middle; }
+
+.notes-input {
+  background: transparent; border: 1px solid transparent; border-radius: 3px;
+  padding: 3px 6px; font-family: var(--body); font-size: 11px; color: var(--text-dim);
+  width: 100%; min-width: 140px; outline: none; transition: all 0.15s; font-style: italic;
+}
+.notes-input:hover { border-color: var(--border2); background: var(--surface3); font-style: normal; }
+.notes-input:focus { border-color: var(--accent); background: var(--surface3); color: var(--text); font-style: normal; }
+.notes-input::placeholder { color: var(--text-muted); font-style: italic; }
+
+/* ── STORAGE ── */
+.storage-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px,1fr)); gap: 12px; margin-top: 8px; }
+.storage-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 14px; transition: border-color 0.15s; }
+.storage-card:hover { border-color: var(--border2); }
+.storage-card h3 { font-family: var(--mono); font-size: 11px; letter-spacing: 1px; color: var(--accent); text-transform: uppercase; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.storage-card h3 .rec { font-size: 8px; background: rgba(212,255,0,0.1); color: var(--accent-dim); padding: 1px 5px; border-radius: 2px; }
+.storage-card p { font-size: 12px; color: var(--text-dim); line-height: 1.6; margin-bottom: 4px; }
+.storage-card .meta { font-family: var(--mono); font-size: 10px; color: var(--text-muted); display: flex; gap: 12px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.tip-list { list-style: none; display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.tip-list li { padding: 9px 12px; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 4px; font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+.tip-list li.warn { border-left-color: var(--amber); }
+.tip-list li.info { border-left-color: var(--blue); }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: 20px; right: 20px; background: var(--surface2); border: 1px solid var(--accent); border-radius: 5px; padding: 9px 16px; font-family: var(--mono); font-size: 10px; color: var(--accent); z-index: 1000; opacity: 0; transform: translateY(8px); transition: all 0.2s; pointer-events: none; }
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.section-block { animation: fadeUp 0.22s ease both; }
+
+/* number input arrow hide */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">PASSIVES.STOCK <span>MAK'S BENCH — BANGALORE</span></div>
+  <div id="save-status" style="font-family:var(--mono);font-size:9px;letter-spacing:1px;color:var(--text-muted);margin-right:8px">◌ CONNECTING…</div>
+  <div class="header-stats">
+    <div class="stat-pill"><strong id="val-total">—</strong>TOTAL VALUES</div>
+    <div class="stat-pill ok"><strong id="val-stocked">—</strong>STOCKED ✓</div>
+    <div class="stat-pill warn"><strong id="val-low">—</strong>LOW STOCK</div>
+    <div class="stat-pill danger" id="stat-needed"><strong id="val-needed">—</strong>NEED TO BUY</div>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-section">PASSIVES</div>
+    <div class="nav-item active" onclick="navigate('resistors',this)">
+      <div class="nav-dot" style="background:var(--orange)"></div>
+      <span class="nav-label">RESISTORS</span>
+      <span class="nav-count" id="nc-resistors">—</span>
+    </div>
+    <div class="nav-item" onclick="navigate('capacitors',this)">
+      <div class="nav-dot" style="background:var(--blue)"></div>
+      <span class="nav-label">CAPACITORS</span>
+      <span class="nav-count" id="nc-capacitors">—</span>
+    </div>
+    <div class="nav-item" onclick="navigate('inductors',this)">
+      <div class="nav-dot" style="background:var(--teal)"></div>
+      <span class="nav-label">INDUCTORS</span>
+      <span class="nav-count" id="nc-inductors">—</span>
+    </div>
+    <div class="nav-item" onclick="navigate('crystals',this)">
+      <div class="nav-dot" style="background:var(--pink)"></div>
+      <span class="nav-label">CRYSTALS / OSC</span>
+      <span class="nav-count" id="nc-crystals">—</span>
+    </div>
+    <div class="sidebar-section">CONTROLLERS</div>
+    <div class="nav-item" onclick="navigate('controllers',this)">
+      <div class="nav-dot" style="background:var(--purple)"></div>
+      <span class="nav-label">CONTROLLERS & SBCs</span>
+      <span class="nav-count" id="nc-controllers">—</span>
+    </div>
+    <div class="sidebar-section">TOOLS</div>
+    <div class="nav-item" onclick="navigate('storage',this)">
+      <div class="nav-dot" style="background:var(--text-muted)"></div>
+      <span class="nav-label">STORAGE GUIDE</span>
+      <span class="nav-count"></span>
+    </div>
+    <div class="nav-item" onclick="navigate('reorder',this)">
+      <div class="nav-dot" style="background:var(--accent)"></div>
+      <span class="nav-label">REORDER LIST</span>
+      <span class="nav-count" id="nc-reorder">—</span>
+    </div>
+    <div class="nav-item" onclick="navigate('deploy',this)">
+      <div class="nav-dot" style="background:var(--green)"></div>
+      <span class="nav-label">DEPLOY GUIDE</span>
+      <span class="nav-count"></span>
+    </div>
+  </nav>
+
+  <main>
+    <!-- ══ RESISTORS ══ -->
+    <div id="page-resistors" class="page-section active">
+      <div class="toolbar">
+        <input class="search-box" type="text" placeholder="SEARCH..." oninput="renderSection('resistors')">
+        <button class="filter-btn active" onclick="setFilter('resistors','all',this)">ALL</button>
+        <button class="filter-btn" onclick="setFilter('resistors','needed',this)">BUY</button>
+        <button class="filter-btn" onclick="setFilter('resistors','low',this)">LOW</button>
+        <button class="filter-btn" onclick="setFilter('resistors','ok',this)">OK</button>
+        <div class="spacer"></div>
+        <button class="action-btn add-btn" onclick="addRow('resistors')">+ ADD ROW</button>
+        <button class="action-btn secondary" onclick="clearSection('resistors')">CLEAR QTY</button>
+      </div>
+      <div class="progress-summary" id="summary-resistors"></div>
+      <div class="section-block">
+        <div class="section-header">
+          <div class="section-title">RESISTORS</div>
+          <span class="section-badge" style="background:rgba(255,112,67,0.12);color:var(--orange);border:1px solid rgba(255,112,67,0.25)">0603 · 0805</span>
+          <span class="section-sub">1% TOL · E24 + SPECIAL</span>
+        </div>
+        <table class="parts-table" id="table-resistors">
+          <thead><tr>
+            <th></th><th>VALUE</th><th>PKG</th><th>POWER</th><th>PART #</th><th>PRIO</th><th>TARGET</th><th>STOCK</th><th>STATUS</th><th></th>
+          </tr></thead>
+          <tbody id="tbody-resistors"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ CAPACITORS ══ -->
+    <div id="page-capacitors" class="page-section">
+      <div class="toolbar">
+        <input class="search-box" type="text" placeholder="SEARCH..." oninput="renderSection('capacitors')">
+        <button class="filter-btn active" onclick="setFilter('capacitors','all',this)">ALL</button>
+        <button class="filter-btn" onclick="setFilter('capacitors','needed',this)">BUY</button>
+        <button class="filter-btn" onclick="setFilter('capacitors','low',this)">LOW</button>
+        <button class="filter-btn" onclick="setFilter('capacitors','ok',this)">OK</button>
+        <div class="spacer"></div>
+        <button class="action-btn add-btn" onclick="addRow('capacitors')">+ ADD ROW</button>
+        <button class="action-btn secondary" onclick="clearSection('capacitors')">CLEAR QTY</button>
+      </div>
+      <div class="progress-summary" id="summary-capacitors"></div>
+      <div class="section-block">
+        <div class="section-header">
+          <div class="section-title">CAPACITORS</div>
+          <span class="section-badge" style="background:rgba(64,200,255,0.1);color:var(--blue);border:1px solid rgba(64,200,255,0.22)">MLCC · ELECTRO</span>
+          <span class="section-sub">C0G · X7R · X5R · AL ELEC · ≥50V</span>
+        </div>
+        <table class="parts-table" id="table-capacitors">
+          <thead><tr>
+            <th></th><th>VALUE</th><th>PKG</th><th>VOLTAGE</th><th>DIEL.</th><th>PART #</th><th>PRIO</th><th>TARGET</th><th>STOCK</th><th>STATUS</th><th></th>
+          </tr></thead>
+          <tbody id="tbody-capacitors"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ INDUCTORS ══ -->
+    <div id="page-inductors" class="page-section">
+      <div class="toolbar">
+        <input class="search-box" type="text" placeholder="SEARCH..." oninput="renderSection('inductors')">
+        <button class="filter-btn active" onclick="setFilter('inductors','all',this)">ALL</button>
+        <button class="filter-btn" onclick="setFilter('inductors','needed',this)">BUY</button>
+        <button class="filter-btn" onclick="setFilter('inductors','low',this)">LOW</button>
+        <button class="filter-btn" onclick="setFilter('inductors','ok',this)">OK</button>
+        <div class="spacer"></div>
+        <button class="action-btn add-btn" onclick="addRow('inductors')">+ ADD ROW</button>
+        <button class="action-btn secondary" onclick="clearSection('inductors')">CLEAR QTY</button>
+      </div>
+      <div class="progress-summary" id="summary-inductors"></div>
+      <div class="section-block">
+        <div class="section-header">
+          <div class="section-title">INDUCTORS</div>
+          <span class="section-badge" style="background:rgba(38,215,184,0.1);color:var(--teal);border:1px solid rgba(38,215,184,0.22)">POWER · CMC · FERRITE</span>
+          <span class="section-sub">POWER · COMMON MODE · FERRITE BEAD</span>
+        </div>
+        <table class="parts-table" id="table-inductors">
+          <thead><tr>
+            <th></th><th>VALUE</th><th>PKG</th><th>TYPE</th><th>CURRENT</th><th>PART #</th><th>PRIO</th><th>TARGET</th><th>STOCK</th><th>STATUS</th><th></th>
+          </tr></thead>
+          <tbody id="tbody-inductors"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ CRYSTALS ══ -->
+    <div id="page-crystals" class="page-section">
+      <div class="toolbar">
+        <input class="search-box" type="text" placeholder="SEARCH..." oninput="renderSection('crystals')">
+        <button class="filter-btn active" onclick="setFilter('crystals','all',this)">ALL</button>
+        <button class="filter-btn" onclick="setFilter('crystals','needed',this)">BUY</button>
+        <button class="filter-btn" onclick="setFilter('crystals','low',this)">LOW</button>
+        <button class="filter-btn" onclick="setFilter('crystals','ok',this)">OK</button>
+        <div class="spacer"></div>
+        <button class="action-btn add-btn" onclick="addRow('crystals')">+ ADD ROW</button>
+        <button class="action-btn secondary" onclick="clearSection('crystals')">CLEAR QTY</button>
+      </div>
+      <div class="progress-summary" id="summary-crystals"></div>
+      <div class="section-block">
+        <div class="section-header">
+          <div class="section-title">CRYSTALS / OSCILLATORS</div>
+          <span class="section-badge" style="background:rgba(244,114,182,0.1);color:var(--pink);border:1px solid rgba(244,114,182,0.22)">XTAL · OSC · RTC</span>
+          <span class="section-sub">SMD · TH</span>
+        </div>
+        <table class="parts-table" id="table-crystals">
+          <thead><tr>
+            <th></th><th>FREQUENCY</th><th>PKG</th><th>TYPE</th><th>LOAD CAP</th><th>PART #</th><th>PRIO</th><th>TARGET</th><th>STOCK</th><th>STATUS</th><th></th>
+          </tr></thead>
+          <tbody id="tbody-crystals"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ CONTROLLERS ══ -->
+    <div id="page-controllers" class="page-section">
+      <div class="toolbar">
+        <input class="search-box" type="text" placeholder="SEARCH..." oninput="renderControllers()">
+        <select class="cell-select" id="ctrl-filter-cat" onchange="renderControllers()" style="font-size:10px;padding:6px 20px 6px 8px">
+          <option value="all">ALL CATEGORIES</option>
+          <option value="MCU">MCU CHIPS</option>
+          <option value="DEV">DEV BOARDS</option>
+          <option value="SBC">SBCs</option>
+        </select>
+        <div class="spacer"></div>
+        <button class="action-btn add-btn" onclick="addController()">+ ADD ITEM</button>
+        <button class="action-btn secondary" onclick="exportControllers()">EXPORT CSV</button>
+      </div>
+      <div class="section-block">
+        <div class="section-header">
+          <div class="section-title">CONTROLLERS & SBCs</div>
+          <span class="section-badge" style="background:rgba(192,132,252,0.1);color:var(--purple);border:1px solid rgba(192,132,252,0.22)">MCU · DEV · SBC</span>
+          <span class="section-sub" id="ctrl-count-label">— ITEMS</span>
+        </div>
+        <table class="ctrl-table">
+          <thead><tr>
+            <th></th><th>PART NAME</th><th>CATEGORY</th><th>VARIANT / DESC</th><th>PART #</th><th>QTY</th><th>NOTES</th><th></th>
+          </tr></thead>
+          <tbody id="tbody-controllers"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ STORAGE ══ -->
+    <div id="page-storage" class="page-section">
+      <div class="section-block">
+        <div class="section-header">
+          <div class="section-title">STORAGE GUIDE</div>
+          <span class="section-badge" style="background:rgba(192,132,252,0.1);color:var(--purple);border:1px solid rgba(192,132,252,0.22)">SYSTEM DESIGN</span>
+        </div>
+        <div class="storage-grid">
+          <div class="storage-card">
+            <h3>📒 SMD COMPONENT BOOK <span class="rec">PRIMARY</span></h3>
+            <p>Tape-strip books (100–200 pockets) for 0603/0805 resistors and MLCCs. Each pocket holds one value on its original strip.</p>
+            <p>Best for passives you grab constantly. Visual, compact, portable to bench.</p>
+            <div class="meta"><span>₹300–600 / book</span><span>~120 values</span></div>
+          </div>
+          <div class="storage-card">
+            <h3>🗄️ MODULAR DRAWER UNIT <span class="rec">PRIMARY</span></h3>
+            <p>64–80 drawer unit (Duratool or local equivalent). Label each drawer. Use for electrolytics, 1210+ passives, and anything too large for a book.</p>
+            <div class="meta"><span>₹1500–3500</span><span>64–80 compartments</span></div>
+          </div>
+          <div class="storage-card">
+            <h3>📦 ESD GRID BOX</h3>
+            <p>For active reels and opened cut-tape on current projects. One box per active board keeps you from mixing stock.</p>
+            <div class="meta"><span>₹200–500 / box</span><span>~20 part types</span></div>
+          </div>
+          <div class="storage-card">
+            <h3>🤐 LABELLED ZIP BAGS</h3>
+            <p>A4 binder with zip pouches for DigiKey bulk overflow. Write value + PN on bag immediately on receipt — before the reel label disappears.</p>
+            <div class="meta"><span>₹5–10 / bag</span><span>Unlimited</span></div>
+          </div>
+        </div>
+        <div style="margin-top:20px">
+          <div class="section-header" style="margin-top:0"><div class="section-title" style="font-size:18px">SORT ORDER</div></div>
+          <ul class="tip-list">
+            <li><strong style="color:var(--orange)">Resistors 0603:</strong> E24 ascending (10Ω → 1MΩ) — Book 1</li>
+            <li><strong style="color:var(--orange)">Resistors 0805:</strong> Power → value ascending — Book 2 or Drawer Row A</li>
+            <li><strong style="color:var(--blue)">MLCC C0G:</strong> pF ascending — Book 3 left half</li>
+            <li><strong style="color:var(--blue)">MLCC X7R:</strong> nF/µF ascending — Book 3 right half</li>
+            <li><strong style="color:var(--blue)">MLCC X5R:</strong> µF ascending — Book 4 or 0805 Drawer</li>
+            <li><strong style="color:var(--teal)">Inductors:</strong> Sort by type first (Power → CMC → Ferrite), then value</li>
+            <li><strong style="color:var(--pink)">Crystals:</strong> Frequency ascending, SMD before TH — small drawer or anti-static tube</li>
+            <li><strong style="color:var(--accent)">Electrolytics TH:</strong> Voltage first (35V → 63V → 100V) then value — Drawer unit bottom</li>
+          </ul>
+        </div>
+        <div style="margin-top:20px">
+          <div class="section-header" style="margin-top:0"><div class="section-title" style="font-size:18px">TIPS FOR BANGALORE</div></div>
+          <ul class="tip-list">
+            <li class="warn">🌧️ <strong>Humidity:</strong> Silica gel in every drawer unit. Swap every 6 months. Electrolytic pads corrode faster than you'd expect.</li>
+            <li class="warn">⚡ <strong>Reform old caps:</strong> Electrolytics sitting unused 2+ years — apply rated voltage through 100Ω for 30 min before circuit use.</li>
+            <li class="info">🏷️ <strong>Label immediately:</strong> Write DigiKey PN on every bag on receipt. Once the reel label is off, the value is lost forever.</li>
+            <li class="info">🛒 <strong>DigiKey bulk strategy:</strong> Buy 1000-pcs reels for 100nF, 10nF, 1µF X7R and 1kΩ, 10kΩ resistors. Cut tape everything else until you know burn rate.</li>
+            <li class="info">🧲 <strong>Inductors:</strong> Power inductors are DCR-sensitive — verify DCR against current limit before stocking bulk. Coilcraft SER / Bourns SRR series are reliable.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ REORDER ══ -->
+    <div id="page-reorder" class="page-section">
+      <div class="section-block">
+        <div class="section-header">
+          <div class="section-title">REORDER LIST</div>
+          <span class="section-badge" style="background:rgba(212,255,0,0.07);color:var(--accent);border:1px solid rgba(212,255,0,0.18)">AUTO-GENERATED</span>
+          <span class="section-sub">Parts below stock threshold</span>
+        </div>
+        <div id="reorder-content"></div>
+      </div>
+    </div>
+
+    <!-- ══ DEPLOY GUIDE ══ -->
+    <div id="page-deploy" class="page-section">
+      <div class="section-block">
+        <div class="section-header">
+          <div class="section-title">DEPLOY GUIDE</div>
+          <span class="section-badge" style="background:rgba(0,230,118,0.08);color:var(--green);border:1px solid rgba(0,230,118,0.2)">SETUP · NETWORK · MIGRATE</span>
+          <span class="section-sub">Arch Linux → Raspberry Pi</span>
+        </div>
+
+        <!-- copy button style used throughout -->
+        <style>
+          .guide-section { margin-bottom: 32px; }
+          .guide-section h2 {
+            font-family: var(--display); font-size: 20px; letter-spacing: 2px;
+            color: var(--green); margin-bottom: 14px;
+            display: flex; align-items: center; gap: 10px;
+          }
+          .guide-section h2 .step-num {
+            background: rgba(0,230,118,0.12); border: 1px solid rgba(0,230,118,0.25);
+            border-radius: 3px; font-size: 11px; padding: 2px 8px;
+            font-family: var(--mono); color: var(--green); letter-spacing: 1px;
+          }
+          .guide-section h3 {
+            font-family: var(--mono); font-size: 11px; letter-spacing: 1px;
+            color: var(--text-dim); text-transform: uppercase; margin: 16px 0 8px;
+          }
+          .guide-section p {
+            font-size: 13px; color: var(--text-dim); line-height: 1.7; margin-bottom: 8px;
+          }
+          .guide-section p strong { color: var(--text); }
+          .cmd-block {
+            background: var(--surface2); border: 1px solid var(--border2);
+            border-left: 3px solid var(--green);
+            border-radius: 4px; padding: 12px 14px; margin: 8px 0;
+            position: relative; overflow-x: auto;
+          }
+          .cmd-block.warn  { border-left-color: var(--amber); }
+          .cmd-block.info  { border-left-color: var(--blue); }
+          .cmd-block.error { border-left-color: var(--red); }
+          .cmd-block pre {
+            font-family: var(--mono); font-size: 11px; color: var(--accent);
+            white-space: pre; margin: 0; line-height: 1.6;
+          }
+          .cmd-block .cmd-comment { color: var(--text-muted); }
+          .cmd-block .copy-btn {
+            position: absolute; top: 8px; right: 8px;
+            background: var(--surface3); border: 1px solid var(--border2);
+            border-radius: 3px; padding: 2px 8px;
+            font-family: var(--mono); font-size: 9px; color: var(--text-muted);
+            cursor: pointer; transition: all 0.12s;
+          }
+          .cmd-block .copy-btn:hover { color: var(--accent); border-color: var(--accent-dim); }
+          .note-box {
+            background: rgba(0,230,118,0.05); border: 1px solid rgba(0,230,118,0.15);
+            border-radius: 4px; padding: 10px 14px; margin: 8px 0;
+            font-size: 12px; color: var(--text-dim); line-height: 1.6;
+          }
+          .note-box.warn  { background: rgba(255,179,0,0.05); border-color: rgba(255,179,0,0.2); }
+          .note-box.info  { background: rgba(64,200,255,0.05); border-color: rgba(64,200,255,0.15); }
+          .note-box.error { background: rgba(255,82,82,0.05); border-color: rgba(255,82,82,0.2); }
+          .note-box strong { color: var(--text); }
+          .guide-divider {
+            border: none; border-top: 1px solid var(--border);
+            margin: 28px 0;
+          }
+          .device-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
+            gap: 10px; margin: 10px 0;
+          }
+          .device-card {
+            background: var(--surface2); border: 1px solid var(--border2);
+            border-radius: 5px; padding: 12px;
+          }
+          .device-card .dc-name {
+            font-family: var(--mono); font-size: 10px; color: var(--text-dim);
+            letter-spacing: 1px; margin-bottom: 6px;
+          }
+          .device-card .dc-url {
+            font-family: var(--mono); font-size: 12px; color: var(--accent);
+            font-weight: 700;
+          }
+          .device-card .dc-note {
+            font-size: 11px; color: var(--text-muted); margin-top: 4px;
+          }
+          .inline-code {
+            font-family: var(--mono); font-size: 11px; background: var(--surface3);
+            border: 1px solid var(--border2); border-radius: 2px; padding: 1px 5px;
+            color: var(--accent);
+          }
+          .toc { margin-bottom: 24px; }
+          .toc a {
+            display: inline-block; font-family: var(--mono); font-size: 10px;
+            color: var(--text-muted); text-decoration: none; margin: 2px 10px 2px 0;
+            transition: color 0.12s;
+          }
+          .toc a:hover { color: var(--green); }
+        </style>
+
+        <!-- TOC -->
+        <div class="toc">
+          <a href="#step-files">1. FILES</a>
+          <a href="#step-run">2. FIRST RUN</a>
+          <a href="#step-staticip">3. STATIC IP</a>
+          <a href="#step-avahi">4. passive.local</a>
+          <a href="#step-hosts">5. /etc/hosts</a>
+          <a href="#step-systemd">6. AUTO-START</a>
+          <a href="#step-devices">7. ALL DEVICES</a>
+          <a href="#step-firewall">8. FIREWALL</a>
+          <a href="#step-troubleshoot">9. TROUBLESHOOT</a>
+          <a href="#step-migrate">10. PI MIGRATION</a>
+        </div>
+
+        <!-- ── STEP 1 ── -->
+        <div class="guide-section" id="step-files">
+          <h2><span class="step-num">STEP 1</span> FILE SETUP</h2>
+          <p>Create the working directory and place both files in it. Keep them together — the server looks for the HTML in the same folder as itself.</p>
+          <div class="cmd-block"><button class="copy-btn" onclick="copyCmd(this)">COPY</button><pre>mkdir -p ~/passives-stock
+cd ~/passives-stock
+<span class="cmd-comment"># copy server.py and passives_tracker_v2.html here</span>
+ls -lh
+<span class="cmd-comment"># should show: server.py  passives_tracker_v2.html</span></pre></div>
+          <div class="note-box info"><strong>state.json</strong> and the <strong>backups/</strong> folder are created automatically on first save. You don't need to create them.</div>
+        </div>
+
+        <hr class="guide-divider">
+
+        <!-- ── STEP 2 ── -->
+        <div class="guide-section" id="step-run">
+          <h2><span class="step-num">STEP 2</span> FIRST RUN — MANUAL TEST</h2>
+          <p>Before setting up auto-start, verify everything works manually.</p>
+          <div class="cmd-block"><button class="copy-btn" onclick="copyCmd(this)">COPY</button><pre>cd ~/passives-stock
+python3 server.py</pre></div>
+          <p>The terminal will print your LAN IP:</p>
+          <div class="cmd-block info"><pre>  Local:    http://localhost:8080
+  Network:  http://192.168.1.42:8080   <span class="cmd-comment">← your actual IP</span>
+  State:    ~/passives-stock/state.json</pre></div>
+          <p>Open <span class="inline-code">http://localhost:8080</span> in your browser. The <strong>● SAVED</strong> indicator top-right confirms the server is writing state. Make a change, stop the server with <span class="inline-code">Ctrl+C</span>, restart it, and verify the change persisted.</p>
+          <div class="note-box warn"><strong>If port 8080 is already in use:</strong> run <span class="inline-code">python3 server.py --port 9090</span> and update the systemd service file accordingly.</div>
+        </div>
+
+        <hr class="guide-divider">
+
+        <!-- ── STEP 3 ── -->
+        <div class="guide-section" id="step-staticip">
+          <h2><span class="step-num">STEP 3</span> STATIC IP — TWO APPROACHES</h2>
+
+          <h3>Option A — DHCP reservation on your router (preferred if accessible)</h3>
+          <p>Log into your router admin page (usually <span class="inline-code">192.168.1.1</span> or <span class="inline-code">192.168.0.1</span>). Look for <strong>DHCP / LAN / Connected Devices</strong>. Find your PC's MAC address, and bind it to a fixed IP like <span class="inline-code">192.168.1.100</span>. ISP routers in India vary — if yours doesn't expose this, use Option B.</p>
+          <div class="cmd-block"><button class="copy-btn" onclick="copyCmd(this)">COPY</button><pre><span class="cmd-comment"># Find your MAC address and current IP</span>
+ip link show          <span class="cmd-comment"># look for your ethernet/wifi interface</span>
+ip addr show          <span class="cmd-comment"># shows current IP next to inet</span></pre></div>
+
+          <h3>Option B — Static IP on the machine itself via NetworkManager (works regardless of router)</h3>
+          <p>This sets the IP directly on your Arch machine. Replace <span class="inline-code">enp3s0</span> with your actual interface name from <span class="inline-code">ip link show</span>, and choose an IP outside your router's DHCP range (e.g. <span class="inline-code">192.168.1.200</span>).</p>
+          <div class="cmd-block"><button class="copy-btn" onclick="copyCmd(this)">COPY</button><pre><span class="cmd-comment"># Check your interface name first</span>
+ip link show
+
+<span class="cmd-comment"># Set a static IP (adjust interface, IP, and gateway to match your network)</span>
+nmcli con mod "$(nmcli -g name con show --active)" \
+  ipv4.addresses "192.168.1.200/24" \
+  ipv4.gateway "192.168.1.1" \
+  ipv4.dns "192.168.1.1,8.8.8.8" \
+  ipv4.method manual
+
+<span class="cmd-comment"># Restart the connection to apply</span>
+nmcli con down "$(nmcli -g name con show --active)" && \
+nmcli con up   "$(nmcli -g name con show --active)"
+
+<span class="cmd-comment"># Verify</span>
+ip addr show</pre></div>
+          <div class="note-box warn"><strong>If you use systemd-networkd instead of NetworkManager:</strong> check with <span class="inline-code">systemctl status NetworkManager systemd-networkd</span> — whichever is active is your network manager. On a standard Arch + Hyprland setup it's usually NetworkManager.</div>
+          <div class="note-box"><strong>Once set:</strong> your server will always be reachable at that IP, even after reboots. Write it down — you'll need it for the <span class="inline-code">/etc/hosts</span> step.</div>
+        </div>
+
+        <hr class="guide-divider">
+
+        <!-- ── STEP 4 ── -->
+        <div class="guide-section" id="step-avahi">
+          <h2><span class="step-num">STEP 4</span> passive.local — mDNS VIA AVAHI</h2>
+          <p>Avahi broadcasts your machine's hostname over mDNS so every device on the LAN can reach it by name with zero client configuration. iOS, Android, macOS, and Linux all support mDNS natively.</p>
+
+          <h3>Install and enable</h3>
+          <div class="cmd-block"><button class="copy-btn" onclick="copyCmd(this)">COPY</button><pre>sudo pacman -S avahi nss-mdns
+
+<span class="cmd-comment"># Set your machine hostname to 'passive'</span>
+sudo hostnamectl set-hostname passive
+
+<span class="cmd-comment"># Enable mDNS resolution in nsswitch.conf</span>
+<span class="cmd-comment"># Open the file and find the 'hosts:' line:</span>
+sudo nano /etc/nsswitch.conf
+<span class="cmd-comment"># Change:  hosts: mymachines resolve [!UNAVAIL=return] files myhostname dns</span>
+<span class="cmd-comment"># To:      hosts: mymachines mdns_minimal [NOTFOUND=return] resolve [!UNAVAIL=return] files myhostname dns</span>
+<span class="cmd-comment"># (add 'mdns_minimal [NOTFOUND=return]' right after 'mymachines')</span>
+
+<span class="cmd-comment"># Enable and start avahi</span>
+sudo systemctl enable --now avahi-daemon</pre></div>
+
+          <h3>Verify it's working</h3>
+          <div class="cmd-block"><button class="copy-btn" onclick="copyCmd(this)">COPY</button><pre><span class="cmd-comment"># From your own machine</span>
+ping passive.local
+
+<span class="cmd-comment"># From another machine on the LAN</span>
+ping passive.local
+avahi-resolve -n passive.local   <span class="cmd-comment"># if avahi-utils installed</span></pre></div>
+
+          <div class="note-box"><strong>Result:</strong> any browser on your LAN can now open <span class="inline-code">http://passive.local:8080</span> — no config on the client device needed.</div>
+          <div class="note-box warn"><strong>Hostname change note:</strong> changing the hostname takes effect on next login/reboot for the shell prompt. Avahi picks it up immediately. If you were using your old hostname for SSH or anything else, update those references.</div>
+        </div>
+
+        <hr class="guide-divider">
+
+        <!-- ── STEP 5 ── -->
+        <div class="guide-section" id="step-hosts">
+          <h2><span class="step-num">STEP 5</span> /etc/hosts — CUSTOM DOMAIN FALLBACK</h2>
+          <p>If you want <span class="inline-code">passive.stock</span> specifically (instead of <span class="inline-code">passive.local</span>), or want a fallback that works without Avahi, add entries to <span class="inline-code">/etc/hosts</span> on each device. Replace <span class="inline-code">192.168.1.200</span> with your actual static IP.</p>
+
+          <h3>Linux / Arch (your PC)</h3>
+          <div class="cmd-block"><button class="copy-btn" onclick="copyCmd(this)">COPY</button><pre>sudo nano /etc/hosts
+<span class="cmd-comment"># Add this line:</span>
+192.168.1.200   passive.stock passive.local</pre></div>
+
+          <h3>Android (phone)</h3>
+          <div class="cmd-block info"><pre><span class="cmd-comment"># Android does not expose /etc/hosts without root.
+# Use the IP directly: http://192.168.1.200:8080
+# Or use passive.local via mDNS (Step 4) — works on Android 12+
+# in Chrome and most browsers without any config.</span></pre></div>
+
+          <h3>iOS / iPadOS</h3>
+          <div class="cmd-block info"><pre><span class="cmd-comment"># iOS does not allow /etc/hosts edits without a DNS config profile.
+# Use passive.local (mDNS, Step 4) — Safari supports it natively.
+# Or bookmark the IP directly: http://192.168.1.200:8080</span></pre></div>
+
+          <div class="note-box warn"><strong>Bottom line:</strong> <span class="inline-code">passive.local</span> (Avahi/mDNS) is the zero-hassle option for phone and iPad. The <span class="inline-code">/etc/hosts</span> approach is most useful on Linux machines where you want the custom <span class="inline-code">.stock</span> domain.</div>
+        </div>
+
+        <hr class="guide-divider">
+
+        <!-- ── STEP 6 ── -->
+        <div class="guide-section" id="step-systemd">
+          <h2><span class="step-num">STEP 6</span> AUTO-START — SYSTEMD USER SERVICE</h2>
+          <p>This starts the server when you log in, restarts it if it crashes, and logs to journald.</p>
+
+          <h3>Install the service</h3>
+          <div class="cmd-block"><button class="copy-btn" onclick="copyCmd(this)">COPY</button><pre><span class="cmd-comment"># Edit the service file first — update the two paths to match yours</span>
+nano ~/passives-stock/passives-stock.service
+<span class="cmd-comment"># Change /home/mak → your actual home directory</span>
+
+<span class="cmd-comment"># Install and enable</span>
+mkdir -p ~/.config/systemd/user/
+cp ~/passives-stock/passives-stock.service ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable --now passives-stock.service</pre></div>
+
+          <h3>Verify it's running</h3>
+          <div class="cmd-block"><button class="copy-btn" onclick="copyCmd(this)">COPY</button><pre>systemctl --user status passives-stock.service
+<span class="cmd-comment"># Should show: Active: active (running)</span>
+
+<span class="cmd-comment"># Live logs</span>
+journalctl --user -u passives-stock.service -f
+
+<span class="cmd-comment"># Test that it survives a reboot</span>
+sudo reboot
+<span class="cmd-comment"># After login: systemctl --user status passives-stock.service</span></pre></div>
+
+          <h3>Manage the service</h3>
+          <div class="cmd-block"><button class="copy-btn" onclick="copyCmd(this)">COPY</button><pre>systemctl --user stop    passives-stock.service   <span class="cmd-comment"># stop now</span>
+systemctl --user start   passives-stock.service   <span class="cmd-comment"># start now</span>
+systemctl --user restart passives-stock.service   <span class="cmd-comment"># restart (after editing HTML)</span>
+systemctl --user disable passives-stock.service   <span class="cmd-comment"># stop auto-starting</span></pre></div>
+
+          <div class="note-box info"><strong>After editing the HTML</strong> you do <em>not</em> need to restart the server — the server reads the file fresh on each request. Just reload the browser tab.</div>
+        </div>
+
+        <hr class="guide-divider">
+
+        <!-- ── STEP 7 ── -->
+        <div class="guide-section" id="step-devices">
+          <h2><span class="step-num">STEP 7</span> ACCESSING FROM ALL DEVICES</h2>
+          <p>Once the server is running and Avahi is enabled, all four devices work the same way:</p>
+          <div class="device-grid">
+            <div class="device-card">
+              <div class="dc-name">ARCH PC</div>
+              <div class="dc-url">http://passive.local:8080</div>
+              <div class="dc-note">or http://localhost:8080</div>
+            </div>
+            <div class="device-card">
+              <div class="dc-name">RASPBERRY PI (future)</div>
+              <div class="dc-url">http://passive.local:8080</div>
+              <div class="dc-note">same URL once migrated</div>
+            </div>
+            <div class="device-card">
+              <div class="dc-name">iPHONE / iPAD</div>
+              <div class="dc-url">http://passive.local:8080</div>
+              <div class="dc-note">Safari — mDNS works natively</div>
+            </div>
+            <div class="device-card">
+              <div class="dc-name">ANDROID PHONE</div>
+              <div class="dc-url">http://passive.local:8080</div>
+              <div class="dc-note">Chrome — mDNS on Android 12+</div>
+            </div>
+          </div>
+          <div class="note-box warn"><strong>All devices must be on the same WiFi/LAN.</strong> This does not work over mobile data or from outside your home network — it's LAN-only by design.</div>
+          <div class="note-box"><strong>Multi-device editing:</strong> changes from any device save to the same <span class="inline-code">state.json</span>. Last write wins. Since you're the only user this is fine — avoid editing from two devices at exactly the same moment.</div>
+        </div>
+
+        <hr class="guide-divider">
+
+        <!-- ── STEP 8 ── -->
+        <div class="guide-section" id="step-firewall">
+          <h2><span class="step-num">STEP 8</span> FIREWALL NOTES</h2>
+          <p>You currently have no active firewall, so port 8080 is open by default. This section is here for when you add one later.</p>
+
+          <h3>Check if a firewall is active</h3>
+          <div class="cmd-block"><button class="copy-btn" onclick="copyCmd(this)">COPY</button><pre>systemctl status nftables ufw firewalld 2>/dev/null | grep -E "Active|Loaded"
+<span class="cmd-comment"># If all show 'inactive' or 'not-found' — no firewall running, nothing to do.</span></pre></div>
+
+          <h3>If you add nftables later</h3>
+          <div class="cmd-block"><button class="copy-btn" onclick="copyCmd(this)">COPY</button><pre><span class="cmd-comment"># Allow port 8080 from LAN (adjust interface — usually enp3s0 or wlan0)</span>
+sudo nft add rule inet filter input \
+  iifname "enp3s0" tcp dport 8080 accept
+
+<span class="cmd-comment"># Also allow mDNS (UDP 5353) for Avahi</span>
+sudo nft add rule inet filter input udp dport 5353 accept
+
+<span class="cmd-comment"># Make rules persistent (save to your nftables config)</span>
+sudo nft list ruleset | sudo tee /etc/nftables.conf</pre></div>
+
+          <h3>If you add ufw later</h3>
+          <div class="cmd-block"><button class="copy-btn" onclick="copyCmd(this)">COPY</button><pre>sudo ufw allow 8080/tcp
+sudo ufw allow 5353/udp   <span class="cmd-comment"># mDNS for Avahi</span></pre></div>
+
+          <div class="note-box info"><strong>Avahi and mDNS</strong> use UDP port 5353 and multicast address 224.0.0.251. If <span class="inline-code">passive.local</span> resolves on your machine but not from other devices, a firewall blocking 5353 is the most likely cause.</div>
+        </div>
+
+        <hr class="guide-divider">
+
+        <!-- ── STEP 9 ── -->
+        <div class="guide-section" id="step-troubleshoot">
+          <h2><span class="step-num">STEP 9</span> TROUBLESHOOTING</h2>
+
+          <h3>● OFFLINE shown in header — server not reached</h3>
+          <div class="cmd-block error"><pre><span class="cmd-comment"># Check if server is running</span>
+systemctl --user status passives-stock.service
+curl http://localhost:8080/health
+
+<span class="cmd-comment"># Check what's on port 8080</span>
+ss -tlnp | grep 8080</pre></div>
+
+          <h3>passive.local not resolving from this machine</h3>
+          <div class="cmd-block error"><pre><span class="cmd-comment"># Verify avahi is running</span>
+systemctl status avahi-daemon
+
+<span class="cmd-comment"># Verify nsswitch.conf has mdns_minimal</span>
+grep ^hosts /etc/nsswitch.conf
+
+<span class="cmd-comment"># Test resolution directly</span>
+avahi-resolve -n passive.local
+getent hosts passive.local</pre></div>
+
+          <h3>passive.local not resolving from phone/iPad</h3>
+          <div class="cmd-block error"><pre><span class="cmd-comment"># Verify both devices are on the same WiFi network (not guest VLAN)</span>
+<span class="cmd-comment"># Some routers isolate devices on guest networks — mDNS won't cross VLANs</span>
+
+<span class="cmd-comment"># Try the IP directly to rule out DNS as the issue</span>
+<span class="cmd-comment"># http://192.168.1.200:8080 (your static IP)</span>
+
+<span class="cmd-comment"># Check Avahi is advertising on the right interface</span>
+avahi-browse -a -t | head -20</pre></div>
+
+          <h3>state.json not updating / saves not persisting</h3>
+          <div class="cmd-block error"><pre><span class="cmd-comment"># Check server logs for write errors</span>
+journalctl --user -u passives-stock.service -n 50
+
+<span class="cmd-comment"># Check file permissions</span>
+ls -lh ~/passives-stock/state.json
+
+<span class="cmd-comment"># Check disk space</span>
+df -h ~/</pre></div>
+
+          <h3>Port 8080 conflict</h3>
+          <div class="cmd-block error"><pre><span class="cmd-comment"># Find what's using 8080</span>
+ss -tlnp | grep 8080
+fuser 8080/tcp
+
+<span class="cmd-comment"># Switch to a different port — edit ExecStart in the service file</span>
+nano ~/.config/systemd/user/passives-stock.service
+<span class="cmd-comment"># Change: --port 8080  →  --port 9090</span>
+systemctl --user daemon-reload
+systemctl --user restart passives-stock.service</pre></div>
+
+          <h3>Service won't start after reboot</h3>
+          <div class="cmd-block error"><pre><span class="cmd-comment"># Check if lingering is enabled (needed for headless / pre-login start)</span>
+loginctl show-user $USER | grep Linger
+<span class="cmd-comment"># If Linger=no and you want it to start before login:</span>
+sudo loginctl enable-linger $USER
+
+<span class="cmd-comment"># View full service failure log</span>
+journalctl --user -u passives-stock.service --since "1 hour ago"</pre></div>
+        </div>
+
+        <hr class="guide-divider">
+
+        <!-- ── STEP 10 ── -->
+        <div class="guide-section" id="step-migrate">
+          <h2><span class="step-num">STEP 10</span> MIGRATING TO RASPBERRY PI</h2>
+          <p>When your Pi network host is ready, migration is a single rsync command. Your entire state — all stock counts, custom rows, controllers — moves with the files.</p>
+
+          <h3>1. Copy everything to the Pi</h3>
+          <div class="cmd-block"><button class="copy-btn" onclick="copyCmd(this)">COPY</button><pre><span class="cmd-comment"># From your Arch machine (replace pi-ip with Pi's IP, pi with Pi username)</span>
+rsync -av ~/passives-stock/ pi@&lt;pi-ip&gt;:~/passives-stock/
+<span class="cmd-comment"># This copies server.py, HTML, state.json, and backups/ — everything.</span></pre></div>
+
+          <h3>2. Set up Python on the Pi (if needed)</h3>
+          <div class="cmd-block"><button class="copy-btn" onclick="copyCmd(this)">COPY</button><pre><span class="cmd-comment"># Python 3 is pre-installed on Raspberry Pi OS</span>
+python3 --version
+<span class="cmd-comment"># No pip installs needed — server uses stdlib only</span></pre></div>
+
+          <h3>3. Set up Avahi on the Pi</h3>
+          <div class="cmd-block"><button class="copy-btn" onclick="copyCmd(this)">COPY</button><pre><span class="cmd-comment"># Raspberry Pi OS (Bookworm/Bullseye)</span>
+sudo apt install -y avahi-daemon libnss-mdns
+
+<span class="cmd-comment"># Set the hostname to 'passive' (same as your Arch machine)</span>
+sudo hostnamectl set-hostname passive
+sudo nano /etc/hosts
+<span class="cmd-comment"># Update the line that says: 127.0.1.1  raspberrypi</span>
+<span class="cmd-comment"># Change it to:            127.0.1.1  passive</span>
+
+sudo systemctl enable --now avahi-daemon</pre></div>
+
+          <h3>4. Set up systemd user service on the Pi</h3>
+          <div class="cmd-block"><button class="copy-btn" onclick="copyCmd(this)">COPY</button><pre><span class="cmd-comment"># Edit service file — update /home/mak → /home/pi</span>
+nano ~/passives-stock/passives-stock.service
+
+mkdir -p ~/.config/systemd/user/
+cp ~/passives-stock/passives-stock.service ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable --now passives-stock.service
+
+<span class="cmd-comment"># Enable lingering so it starts without login (headless Pi)</span>
+sudo loginctl enable-linger pi</pre></div>
+
+          <h3>5. Stop the service on your Arch machine</h3>
+          <div class="cmd-block"><button class="copy-btn" onclick="copyCmd(this)">COPY</button><pre><span class="cmd-comment"># On your Arch PC — disable so both aren't running at once</span>
+systemctl --user disable --now passives-stock.service
+<span class="cmd-comment"># The URL stays the same: http://passive.local:8080</span>
+<span class="cmd-comment"># It now resolves to the Pi instead.</span></pre></div>
+
+          <div class="note-box"><strong>Both machines can't use the same hostname simultaneously.</strong> Once the Pi takes over as <span class="inline-code">passive</span>, disable Avahi on your Arch machine or rename it: <span class="inline-code">sudo hostnamectl set-hostname mak-arch</span> (or whatever you prefer).</div>
+          <div class="note-box info"><strong>Sync state back from Pi to Arch</strong> if you ever want a local backup: <span class="inline-code">rsync -av pi@&lt;pi-ip&gt;:~/passives-stock/state.json ~/passives-stock/</span></div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// PKG / TYPE OPTIONS
+// ═══════════════════════════════════════════════════════════════════
+const PKG_OPTIONS   = ['0402','0603','0805','1206','1210','1512','2010','2512','TH','SMD','HC-49S','HC-49US','3225','2520','2016','5032'];
+const IND_TYPES     = ['Power','Ferrite Bead','CMC','Signal/RF','Coupled'];
+const XTAL_TYPES    = ['Crystal','TCXO','VCXO','Osc Module','RTC Crystal'];
+const DIEL_OPTIONS  = ['C0G','X7R','X5R','X7S','Y5V','Z5U','Al Elec','Ta'];
+const PRIO_OPTIONS  = [1,2,3];
+
+function pkgSelect(val, id, section, field) {
+  let opts = PKG_OPTIONS.map(p => `<option value="${p}" ${p===val?'selected':''}>${p}</option>`).join('');
+  return `<select class="cell-select" onchange="updateField('${section}','${id}','${field}',this.value)">${opts}</select>`;
+}
+function indTypeSelect(val, id, section) {
+  let opts = IND_TYPES.map(t => `<option value="${t}" ${t===val?'selected':''}>${t}</option>`).join('');
+  return `<select class="cell-select" onchange="updateField('${section}','${id}','type',this.value)">${opts}</select>`;
+}
+function xtalTypeSelect(val, id, section) {
+  let opts = XTAL_TYPES.map(t => `<option value="${t}" ${t===val?'selected':''}>${t}</option>`).join('');
+  return `<select class="cell-select" onchange="updateField('${section}','${id}','type',this.value)">${opts}</select>`;
+}
+function dielSelect(val, id, section) {
+  let opts = DIEL_OPTIONS.map(d => `<option value="${d}" ${d===val?'selected':''}>${d}</option>`).join('');
+  return `<select class="cell-select" onchange="updateField('${section}','${id}','die',this.value)">${opts}</select>`;
+}
+function prioSelect(val, id, section) {
+  let opts = [1,2,3].map(p => `<option value="${p}" ${p==val?'selected':''}>${'★'.repeat(p)}${'☆'.repeat(3-p)}</option>`).join('');
+  return `<select class="cell-select" style="width:70px" onchange="updateField('${section}','${id}','prio',+this.value)">${opts}</select>`;
+}
+function ctrlCatSelect(val, id) {
+  const cats = ['MCU','DEV','SBC'];
+  let opts = cats.map(c => `<option value="${c}" ${c===val?'selected':''}>${c}</option>`).join('');
+  return `<select class="cell-select" onchange="updateCtrlField('${id}','cat',this.value)">${opts}</select>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// DEFAULT DATA
+// ═══════════════════════════════════════════════════════════════════
+const DEFAULT_RESISTORS = [
+  { group: "E24 CORE — Logic / Signal (0603)", color: "var(--orange)" },
+  { id:"r01", val:"10 Ω",    pkg:"0603", pw:"0.1W",  pn:"",                      prio:3, target:500 },
+  { id:"r02", val:"33 Ω",    pkg:"0603", pw:"0.1W",  pn:"RC0603FR-0733RL",       prio:3, target:300 },
+  { id:"r03", val:"47 Ω",    pkg:"0603", pw:"0.1W",  pn:"",                      prio:3, target:300 },
+  { id:"r04", val:"100 Ω",   pkg:"0603", pw:"0.1W",  pn:"",                      prio:3, target:500 },
+  { id:"r05", val:"150 Ω",   pkg:"0603", pw:"0.1W",  pn:"",                      prio:3, target:300 },
+  { id:"r06", val:"220 Ω",   pkg:"0603", pw:"0.1W",  pn:"RC0603FR-07220RL",      prio:3, target:500 },
+  { id:"r07", val:"330 Ω",   pkg:"0603", pw:"0.1W",  pn:"",                      prio:3, target:300 },
+  { id:"r08", val:"470 Ω",   pkg:"0603", pw:"0.1W",  pn:"",                      prio:3, target:300 },
+  { id:"r09", val:"1 kΩ",    pkg:"0603", pw:"0.1W",  pn:"RC0603FR-071KL",        prio:3, target:500 },
+  { id:"r10", val:"2.2 kΩ",  pkg:"0603", pw:"0.1W",  pn:"",                      prio:3, target:300 },
+  { id:"r11", val:"3.3 kΩ",  pkg:"0603", pw:"0.1W",  pn:"",                      prio:3, target:300 },
+  { id:"r12", val:"4.7 kΩ",  pkg:"0603", pw:"0.1W",  pn:"RC0603FR-074K7L",       prio:3, target:500 },
+  { id:"r13", val:"10 kΩ",   pkg:"0603", pw:"0.1W",  pn:"RC0603FR-0710KL",       prio:3, target:500 },
+  { id:"r14", val:"22 kΩ",   pkg:"0603", pw:"0.1W",  pn:"",                      prio:2, target:200 },
+  { id:"r15", val:"47 kΩ",   pkg:"0603", pw:"0.1W",  pn:"",                      prio:2, target:200 },
+  { id:"r16", val:"100 kΩ",  pkg:"0603", pw:"0.1W",  pn:"RC0603FR-07100KL",      prio:3, target:300 },
+  { id:"r17", val:"220 kΩ",  pkg:"0603", pw:"0.1W",  pn:"",                      prio:2, target:200 },
+  { id:"r18", val:"470 kΩ",  pkg:"0603", pw:"0.1W",  pn:"",                      prio:2, target:200 },
+  { id:"r19", val:"1 MΩ",    pkg:"0603", pw:"0.1W",  pn:"",                      prio:2, target:200 },
+  { group: "POWER — SMPS / Gate Drive (0805)", color: "var(--orange)" },
+  { id:"r20", val:"0.01 Ω",  pkg:"0805", pw:"0.25W", pn:"",                      prio:3, target:200 },
+  { id:"r21", val:"0.05 Ω",  pkg:"0805", pw:"0.25W", pn:"",                      prio:3, target:200 },
+  { id:"r22", val:"0.1 Ω",   pkg:"0805", pw:"0.25W", pn:"CRCW0805R100FKEA",      prio:3, target:300 },
+  { id:"r23", val:"0.22 Ω",  pkg:"0805", pw:"0.25W", pn:"",                      prio:2, target:200 },
+  { id:"r24", val:"1 Ω",     pkg:"0805", pw:"0.25W", pn:"",                      prio:3, target:300 },
+  { id:"r25", val:"4.7 Ω",   pkg:"0805", pw:"0.25W", pn:"",                      prio:2, target:200 },
+  { id:"r26", val:"10 Ω",    pkg:"0805", pw:"0.25W", pn:"CRCW080510R0FKEA",      prio:3, target:300 },
+  { id:"r27", val:"33 Ω",    pkg:"0805", pw:"0.25W", pn:"",                      prio:2, target:200 },
+  { id:"r28", val:"100 Ω",   pkg:"0805", pw:"0.25W", pn:"",                      prio:2, target:200 },
+  { id:"r29", val:"1 kΩ",    pkg:"0805", pw:"0.25W", pn:"",                      prio:2, target:200 },
+  { id:"r30", val:"10 kΩ",   pkg:"0805", pw:"0.25W", pn:"",                      prio:2, target:200 },
+  { id:"r31", val:"100 kΩ",  pkg:"0805", pw:"0.25W", pn:"",                      prio:2, target:200 },
+  { group: "SPECIAL — Analog / Precision / Jumpers", color: "var(--orange)" },
+  { id:"r32", val:"0 Ω",     pkg:"0603", pw:"0.1W",  pn:"RC0603JR-070RL",        prio:3, target:300 },
+  { id:"r33", val:"49.9 Ω",  pkg:"0603", pw:"0.1W",  pn:"",                      prio:2, target:200 },
+  { id:"r34", val:"51 Ω",    pkg:"0603", pw:"0.1W",  pn:"",                      prio:2, target:200 },
+  { id:"r35", val:"75 Ω",    pkg:"0603", pw:"0.1W",  pn:"",                      prio:1, target:100 },
+  { id:"r36", val:"499 Ω",   pkg:"0603", pw:"0.1W",  pn:"",                      prio:2, target:200 },
+  { id:"r37", val:"4.99 kΩ", pkg:"0603", pw:"0.1W",  pn:"",                      prio:2, target:200 },
+  { id:"r38", val:"49.9 kΩ", pkg:"0603", pw:"0.1W",  pn:"",                      prio:1, target:100 },
+];
+
+const DEFAULT_CAPACITORS = [
+  { group: "C0G / NP0 — Precision, RF, Timing (0603 · 50V)", color: "var(--blue)" },
+  { id:"c01", val:"10 pF",   pkg:"0603", vlt:"50V", die:"C0G", pn:"",                     prio:2, target:200 },
+  { id:"c02", val:"15 pF",   pkg:"0603", vlt:"50V", die:"C0G", pn:"",                     prio:3, target:300 },
+  { id:"c03", val:"18 pF",   pkg:"0603", vlt:"50V", die:"C0G", pn:"GRM1885C1H180JA01D",   prio:3, target:300 },
+  { id:"c04", val:"22 pF",   pkg:"0603", vlt:"50V", die:"C0G", pn:"GRM1885C1H220JA01D",   prio:3, target:300 },
+  { id:"c05", val:"33 pF",   pkg:"0603", vlt:"50V", die:"C0G", pn:"",                     prio:2, target:200 },
+  { id:"c06", val:"47 pF",   pkg:"0603", vlt:"50V", die:"C0G", pn:"",                     prio:2, target:200 },
+  { id:"c07", val:"100 pF",  pkg:"0603", vlt:"50V", die:"C0G", pn:"",                     prio:3, target:300 },
+  { id:"c08", val:"220 pF",  pkg:"0603", vlt:"50V", die:"C0G", pn:"",                     prio:2, target:200 },
+  { id:"c09", val:"470 pF",  pkg:"0603", vlt:"50V", die:"C0G", pn:"",                     prio:2, target:200 },
+  { id:"c10", val:"1 nF",    pkg:"0603", vlt:"50V", die:"C0G", pn:"",                     prio:3, target:300 },
+  { group: "X7R — General Purpose Decoupling (0603 · 50V)", color: "var(--blue)" },
+  { id:"c11", val:"1 nF",    pkg:"0603", vlt:"50V", die:"X7R", pn:"",                     prio:2, target:200 },
+  { id:"c12", val:"4.7 nF",  pkg:"0603", vlt:"50V", die:"X7R", pn:"",                     prio:2, target:200 },
+  { id:"c13", val:"10 nF",   pkg:"0603", vlt:"50V", die:"X7R", pn:"GRM188R71H103KA01D",   prio:3, target:500 },
+  { id:"c14", val:"47 nF",   pkg:"0603", vlt:"50V", die:"X7R", pn:"",                     prio:3, target:300 },
+  { id:"c15", val:"100 nF",  pkg:"0603", vlt:"50V", die:"X7R", pn:"GRM188R71H104KA93D",   prio:3, target:500 },
+  { id:"c16", val:"220 nF",  pkg:"0603", vlt:"50V", die:"X7R", pn:"",                     prio:3, target:300 },
+  { id:"c17", val:"470 nF",  pkg:"0603", vlt:"50V", die:"X7R", pn:"",                     prio:2, target:200 },
+  { id:"c18", val:"1 µF",    pkg:"0603", vlt:"50V", die:"X7R", pn:"GRM188R71H105KA12D",   prio:3, target:500 },
+  { group: "X5R — Bulk Decoupling (0805 · 50V)", color: "var(--blue)" },
+  { id:"c19", val:"1 µF",    pkg:"0805", vlt:"50V", die:"X5R", pn:"",                     prio:3, target:300 },
+  { id:"c20", val:"2.2 µF",  pkg:"0805", vlt:"50V", die:"X5R", pn:"",                     prio:3, target:300 },
+  { id:"c21", val:"4.7 µF",  pkg:"0805", vlt:"50V", die:"X5R", pn:"GRM21BR61H475KA12L",   prio:3, target:300 },
+  { id:"c22", val:"10 µF",   pkg:"0805", vlt:"50V", die:"X5R", pn:"GRM21BR61H106KE43L",   prio:3, target:300 },
+  { id:"c23", val:"22 µF",   pkg:"0805", vlt:"25V", die:"X5R", pn:"",                     prio:2, target:200 },
+  { id:"c24", val:"47 µF",   pkg:"1210", vlt:"25V", die:"X5R", pn:"",                     prio:2, target:200 },
+  { id:"c25", val:"100 µF",  pkg:"1210", vlt:"25V", die:"X5R", pn:"",                     prio:2, target:200 },
+  { group: "AL ELECTROLYTIC — Bulk / High-Voltage (TH + SMD)", color: "var(--blue)" },
+  { id:"c26", val:"100 µF",  pkg:"TH",   vlt:"35V", die:"Al Elec", pn:"UVR1V101MED",      prio:3, target:100 },
+  { id:"c27", val:"220 µF",  pkg:"TH",   vlt:"35V", die:"Al Elec", pn:"UVR1V221MED1TD",   prio:3, target:100 },
+  { id:"c28", val:"470 µF",  pkg:"TH",   vlt:"35V", die:"Al Elec", pn:"",                 prio:2, target:100 },
+  { id:"c29", val:"1000 µF", pkg:"TH",   vlt:"35V", die:"Al Elec", pn:"",                 prio:2, target:50  },
+  { id:"c30", val:"100 µF",  pkg:"TH",   vlt:"63V", die:"Al Elec", pn:"",                 prio:2, target:50  },
+  { id:"c31", val:"220 µF",  pkg:"TH",   vlt:"63V", die:"Al Elec", pn:"",                 prio:2, target:50  },
+  { id:"c32", val:"470 µF",  pkg:"TH",   vlt:"100V",die:"Al Elec", pn:"",                 prio:1, target:30  },
+  { id:"c33", val:"10 µF",   pkg:"SMD",  vlt:"35V", die:"Al Elec", pn:"",                 prio:2, target:100 },
+  { id:"c34", val:"47 µF",   pkg:"SMD",  vlt:"35V", die:"Al Elec", pn:"",                 prio:2, target:100 },
+];
+
+const DEFAULT_INDUCTORS = [
+  { group: "POWER INDUCTORS — SMPS (Shielded, >1A)", color: "var(--teal)" },
+  { id:"l01", val:"1 µH",    pkg:"0805", type:"Power", cur:"3A",   pn:"SRR1260-1R0Y",    prio:3, target:50 },
+  { id:"l02", val:"2.2 µH",  pkg:"0805", type:"Power", cur:"3A",   pn:"SRR1260-2R2Y",    prio:3, target:50 },
+  { id:"l03", val:"4.7 µH",  pkg:"1210", type:"Power", cur:"3A",   pn:"SRR1260-4R7Y",    prio:3, target:50 },
+  { id:"l04", val:"10 µH",   pkg:"1210", type:"Power", cur:"2A",   pn:"SRR1260-100Y",    prio:3, target:50 },
+  { id:"l05", val:"22 µH",   pkg:"1210", type:"Power", cur:"1.5A", pn:"",                prio:2, target:30 },
+  { id:"l06", val:"47 µH",   pkg:"1210", type:"Power", cur:"1A",   pn:"",                prio:2, target:30 },
+  { id:"l07", val:"100 µH",  pkg:"1512", type:"Power", cur:"0.8A", pn:"",                prio:2, target:20 },
+  { group: "COMMON MODE CHOKES — EMI Filtering", color: "var(--teal)" },
+  { id:"l08", val:"90 Ω@100MHz", pkg:"0805", type:"CMC", cur:"100mA", pn:"ACM2012-900-2P-T002", prio:3, target:50 },
+  { id:"l09", val:"2x47 µH",    pkg:"1210", type:"CMC", cur:"300mA", pn:"",                     prio:2, target:30 },
+  { id:"l10", val:"2x10 µH",    pkg:"0805", type:"CMC", cur:"500mA", pn:"",                     prio:2, target:30 },
+  { group: "FERRITE BEADS — EMI Suppression", color: "var(--teal)" },
+  { id:"l11", val:"100 Ω@100MHz", pkg:"0603", type:"Ferrite Bead", cur:"500mA", pn:"BLM18AG101SN1D", prio:3, target:100 },
+  { id:"l12", val:"600 Ω@100MHz", pkg:"0603", type:"Ferrite Bead", cur:"200mA", pn:"BLM18BD601SN1D", prio:3, target:100 },
+  { id:"l13", val:"1kΩ@100MHz",   pkg:"0805", type:"Ferrite Bead", cur:"3A",    pn:"",              prio:3, target:50  },
+  { id:"l14", val:"2.5A power line",pkg:"0805",type:"Ferrite Bead", cur:"2.5A",  pn:"BLM21PG221SN1L",prio:2, target:50 },
+];
+
+const DEFAULT_CRYSTALS = [
+  { group: "STANDARD CRYSTALS — MCU / USB", color: "var(--pink)" },
+  { id:"x01", val:"8 MHz",     pkg:"HC-49US", type:"Crystal", load:"18pF",  pn:"",              prio:2, target:20 },
+  { id:"x02", val:"12 MHz",    pkg:"HC-49US", type:"Crystal", load:"18pF",  pn:"",              prio:3, target:20 },
+  { id:"x03", val:"16 MHz",    pkg:"HC-49US", type:"Crystal", load:"18pF",  pn:"",              prio:3, target:20 },
+  { id:"x04", val:"20 MHz",    pkg:"HC-49US", type:"Crystal", load:"18pF",  pn:"",              prio:2, target:10 },
+  { id:"x05", val:"24 MHz",    pkg:"HC-49US", type:"Crystal", load:"18pF",  pn:"",              prio:2, target:10 },
+  { id:"x06", val:"25 MHz",    pkg:"HC-49US", type:"Crystal", load:"10pF",  pn:"",              prio:3, target:20 },
+  { id:"x07", val:"40 MHz",    pkg:"HC-49US", type:"Crystal", load:"10pF",  pn:"",              prio:2, target:10 },
+  { group: "SMD CRYSTALS", color: "var(--pink)" },
+  { id:"x08", val:"16 MHz",    pkg:"3225",    type:"Crystal", load:"18pF",  pn:"ABLS-16.000MHZ-B4-T", prio:3, target:20 },
+  { id:"x09", val:"25 MHz",    pkg:"3225",    type:"Crystal", load:"10pF",  pn:"",              prio:3, target:20 },
+  { id:"x10", val:"40 MHz",    pkg:"3225",    type:"Crystal", load:"10pF",  pn:"",              prio:2, target:10 },
+  { group: "RTC CRYSTALS", color: "var(--pink)" },
+  { id:"x11", val:"32.768 kHz",pkg:"TH",      type:"RTC Crystal", load:"12.5pF", pn:"ABS07-32.768KHZ-T", prio:3, target:20 },
+  { id:"x12", val:"32.768 kHz",pkg:"3225",    type:"RTC Crystal", load:"7pF",    pn:"",              prio:2, target:10 },
+  { group: "OSCILLATOR MODULES", color: "var(--pink)" },
+  { id:"x13", val:"16 MHz",    pkg:"5032",    type:"Osc Module",  load:"CMOS",  pn:"",              prio:2, target:5 },
+  { id:"x14", val:"25 MHz",    pkg:"5032",    type:"Osc Module",  load:"CMOS",  pn:"",              prio:2, target:5 },
+];
+
+const DEFAULT_CONTROLLERS = [
+  { id:"ctrl01", name:"ESP32-WROOM-32E",       cat:"MCU", variant:"Dual-core Xtensa LX6, WiFi+BT, 4MB Flash",    pn:"ESP32-WROOM-32E",       qty:5,  notes:"Main workhorse MCU" },
+  { id:"ctrl02", name:"ESP32-S3-WROOM-1U",     cat:"MCU", variant:"S3 with USB OTG, AI accel, U.FL antenna",     pn:"ESP32-S3-WROOM-1U-N8R8",qty:3,  notes:"OakBridge board MCU" },
+  { id:"ctrl03", name:"STM32G031K8T6",         cat:"MCU", variant:"Cortex-M0+, 64KB Flash, LQFP32",              pn:"STM32G031K8T6",         qty:5,  notes:"POV display base MCU" },
+  { id:"ctrl04", name:"STM32G474RET6",         cat:"MCU", variant:"Cortex-M4, HRTIM, 512KB, LQFP64",             pn:"STM32G474RET6",         qty:3,  notes:"PSFB SMPS supervisor" },
+  { id:"ctrl05", name:"ESP32-DevKitC V4",      cat:"DEV", variant:"ESP32-WROOM-32 dev board, USB-UART",          pn:"ESP32-DevKitC-32E",     qty:3,  notes:"" },
+  { id:"ctrl06", name:"ESP32-S3-DevKitC-1",    cat:"DEV", variant:"ESP32-S3 dev board, 2x USB",                  pn:"ESP32-S3-DevKitC-1",    qty:2,  notes:"" },
+  { id:"ctrl07", name:"STM32 Nucleo-G474RE",   cat:"DEV", variant:"Nucleo-64, ST-Link onboard",                  pn:"NUCLEO-G474RE",         qty:1,  notes:"SMPS dev/debug board" },
+  { id:"ctrl08", name:"Arduino Uno R3",        cat:"DEV", variant:"ATmega328P, 5V, DIP socket",                  pn:"A000066",               qty:2,  notes:"" },
+  { id:"ctrl09", name:"Raspberry Pi 4B",       cat:"SBC", variant:"4GB RAM, BCM2711, 4-core A72",                pn:"SC0194",                qty:1,  notes:"Primary SBC / ground station" },
+  { id:"ctrl10", name:"Raspberry Pi Zero 2W",  cat:"SBC", variant:"WiFi+BT, RP3A0, 512MB",                       pn:"SC0510",                qty:2,  notes:"" },
+];
+
+// ═══════════════════════════════════════════════════════════════════
+// STATE MANAGEMENT — server-backed, falls back to localStorage
+// ═══════════════════════════════════════════════════════════════════
+const SK = 'passives_v3';
+let S = {};
+let sections = {};
+let controllers = [];
+let filters = { resistors:'all', capacitors:'all', inductors:'all', crystals:'all' };
+let saveTimer = null;
+let serverAvailable = false;
+
+// ── status indicator ──────────────────────────────────────────────
+function setSaveStatus(state) {
+  // state: 'saving' | 'saved' | 'offline' | 'error'
+  const el = document.getElementById('save-status');
+  if (!el) return;
+  const cfg = {
+    saving:  { text:'● SAVING…',  color:'var(--amber)' },
+    saved:   { text:'● SAVED',    color:'var(--green)' },
+    offline: { text:'◌ OFFLINE',  color:'var(--text-muted)' },
+    error:   { text:'✕ SAVE ERR', color:'var(--red)' },
+  };
+  const c = cfg[state] || cfg.offline;
+  el.textContent = c.text;
+  el.style.color = c.color;
+}
+
+// ── debounced save (300ms after last change) ──────────────────────
+function save() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(_doSave, 300);
+}
+
+async function _doSave() {
+  const payload = {
+    state: S,
+    resistors:  sections.resistors,
+    capacitors: sections.capacitors,
+    inductors:  sections.inductors,
+    crystals:   sections.crystals,
+    controllers
+  };
+  // always keep localStorage as offline backup
+  try { localStorage.setItem(SK, JSON.stringify(payload)); } catch {}
+
+  if (!serverAvailable) { setSaveStatus('offline'); return; }
+  setSaveStatus('saving');
+  try {
+    const r = await fetch('/api/state', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    setSaveStatus(r.ok ? 'saved' : 'error');
+  } catch {
+    setSaveStatus('error');
+    serverAvailable = false;
+  }
+}
+
+// ── load: try server first, fall back to localStorage ─────────────
+async function loadState() {
+  let d = null;
+
+  try {
+    const r = await fetch('/api/state', { signal: AbortSignal.timeout(1500) });
+    if (r.ok) {
+      d = await r.json();
+      serverAvailable = true;
+      setSaveStatus('saved');
+    }
+  } catch {
+    serverAvailable = false;
+    setSaveStatus('offline');
+  }
+
+  // fall back to localStorage if server unreachable
+  if (!d) {
+    try { d = JSON.parse(localStorage.getItem(SK)) || {}; } catch { d = {}; }
+  }
+
+  S                   = d.state       || {};
+  sections.resistors  = d.resistors   || JSON.parse(JSON.stringify(DEFAULT_RESISTORS));
+  sections.capacitors = d.capacitors  || JSON.parse(JSON.stringify(DEFAULT_CAPACITORS));
+  sections.inductors  = d.inductors   || JSON.parse(JSON.stringify(DEFAULT_INDUCTORS));
+  sections.crystals   = d.crystals    || JSON.parse(JSON.stringify(DEFAULT_CRYSTALS));
+  controllers         = d.controllers || JSON.parse(JSON.stringify(DEFAULT_CONTROLLERS));
+}
+
+function getS(id) { return S[id] || { qty:0, checked:false }; }
+
+function setQty(id, qty) {
+  if (!S[id]) S[id] = { qty:0, checked:false };
+  S[id].qty = Math.max(0, +qty || 0);
+  save();
+}
+function setChecked(id, v) {
+  if (!S[id]) S[id] = { qty:0, checked:false };
+  S[id].checked = v;
+  save();
+}
+function updateField(section, id, field, val) {
+  const row = sections[section].find(r => r.id === id);
+  if (row) { row[field] = field==='prio'||field==='target'? +val : val; save(); }
+}
+function updateCtrlField(id, field, val) {
+  const r = controllers.find(c => c.id === id);
+  if (r) { r[field] = field==='qty'? (+val||0) : val; save(); }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// STATUS
+// ═══════════════════════════════════════════════════════════════════
+function getStatus(qty, target) {
+  if (qty === 0 || qty < target * 0.25) return 'needed';
+  if (qty < target * 0.5) return 'low';
+  return 'ok';
+}
+function statusInfo(status) {
+  if (status === 'needed') return { label:'BUY', color:'var(--red)' };
+  if (status === 'low')    return { label:'LOW', color:'var(--amber)' };
+  return { label:'OK', color:'var(--green)' };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// RENDER PASSIVES (generic)
+// ═══════════════════════════════════════════════════════════════════
+function getSearch(section) {
+  const el = document.querySelector(`#page-${section} .search-box`);
+  return el ? el.value.toLowerCase() : '';
+}
+
+function renderSection(section) {
+  const tbody = document.getElementById(`tbody-${section}`);
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  const filt = filters[section];
+  const search = getSearch(section);
+  const color = { resistors:'var(--orange)', capacitors:'var(--blue)', inductors:'var(--teal)', crystals:'var(--pink)' }[section];
+
+  sections[section].forEach(item => {
+    if (item.group) {
+      const tr = document.createElement('tr');
+      tr.className = 'group-row';
+      const cols = { resistors:10, capacitors:11, inductors:11, crystals:11 }[section];
+      tr.innerHTML = `<td colspan="${cols}" style="color:${color}">▸ ${item.group}</td>`;
+      tbody.appendChild(tr);
+      return;
+    }
+    const s = getS(item.id);
+    const status = getStatus(s.qty, item.target);
+    if (filt !== 'all' && filt !== status) return;
+    const searchStr = [item.val, item.pkg, item.pn||'', item.type||'', item.die||'', item.cur||'', item.load||''].join(' ').toLowerCase();
+    if (search && !searchStr.includes(search)) return;
+
+    const si = statusInfo(status);
+    const pct = Math.min(100, item.target > 0 ? (s.qty / item.target) * 100 : 0);
+    const tr = document.createElement('tr');
+    if (s.checked) tr.classList.add('stocked');
+
+    let extraCols = '';
+    if (section === 'capacitors') {
+      extraCols = `<td>${dielSelect(item.die||'X7R', item.id, section)}</td>`;
+    } else if (section === 'inductors') {
+      extraCols = `<td>${indTypeSelect(item.type||'Power', item.id, section)}</td>
+                   <td><input class="editable-cell" style="width:70px" value="${item.cur||''}" placeholder="—" onchange="updateField('${section}','${item.id}','cur',this.value)"></td>`;
+    } else if (section === 'crystals') {
+      extraCols = `<td>${xtalTypeSelect(item.type||'Crystal', item.id, section)}</td>
+                   <td><input class="editable-cell" style="width:70px" value="${item.load||''}" placeholder="—" onchange="updateField('${section}','${item.id}','load',this.value)"></td>`;
+    }
+
+    const vltCol = section === 'capacitors' ? `<td><input class="editable-cell" style="width:60px" value="${item.vlt||''}" placeholder="—" onchange="updateField('capacitors','${item.id}','vlt',this.value)"></td>` : '';
+    const pwCol  = section === 'resistors'  ? `<td class="pkg-cell" style="font-family:var(--mono);font-size:10px">${item.pw||''}</td>` : '';
+
+    tr.innerHTML = `
+      <td class="check-cell"><input type="checkbox" class="part-check" ${s.checked?'checked':''} onchange="setChecked('${item.id}',this.checked);renderSection('${section}')"></td>
+      <td class="value-cell">${item.val}</td>
+      <td>${pkgSelect(item.pkg||'0603', item.id, section, 'pkg')}</td>
+      ${pwCol}${vltCol}${extraCols}
+      <td><input class="editable-cell" style="min-width:110px" value="${item.pn||''}" placeholder="part number..." onchange="updateField('${section}','${item.id}','pn',this.value)"></td>
+      <td>${prioSelect(item.prio||2, item.id, section)}</td>
+      <td><input class="qty-input" type="number" style="width:56px" value="${item.target}" onchange="updateField('${section}','${item.id}','target',this.value);renderSection('${section}')"></td>
+      <td class="qty-cell">
+        <div class="qty-control">
+          <button class="qty-btn minus" onclick="adj('${item.id}',-50,'${section}')">−</button>
+          <input class="qty-input" type="number" value="${s.qty}" onchange="setQty('${item.id}',this.value);renderSection('${section}')">
+          <button class="qty-btn plus" onclick="adj('${item.id}',50,'${section}')">+</button>
+        </div>
+      </td>
+      <td class="status-cell">
+        <span class="status-label" style="color:${si.color}">${si.label}</span>
+        <div class="status-bar"><div class="status-fill" style="width:${pct}%;background:${si.color}"></div></div>
+      </td>
+      <td><button class="del-btn" onclick="deleteRow('${section}','${item.id}')" title="Delete">×</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  updateSummary(section);
+  updateHeader();
+  updateNavCounts();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// CONTROLLERS
+// ═══════════════════════════════════════════════════════════════════
+function renderControllers() {
+  const tbody = document.getElementById('tbody-controllers');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  const search = (document.querySelector('#page-controllers .search-box')||{}).value||'';
+  const catFilt = (document.getElementById('ctrl-filter-cat')||{}).value||'all';
+
+  let count = 0;
+  controllers.forEach(item => {
+    if (catFilt !== 'all' && item.cat !== catFilt) return;
+    const s = [item.name, item.variant, item.pn, item.cat, item.notes||''].join(' ').toLowerCase();
+    if (search && !s.includes(search.toLowerCase())) return;
+    count++;
+
+    const catColors = { MCU:'var(--orange)', DEV:'var(--teal)', SBC:'var(--purple)' };
+    const catColor = catColors[item.cat] || 'var(--text-muted)';
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="check-cell"><input type="checkbox" class="part-check" ${item.checked?'checked':''} onchange="updateCtrlField('${item.id}','checked',this.checked);renderControllers()"></td>
+      <td><input class="editable-cell" style="min-width:140px;font-weight:700;font-size:12px" value="${item.name}" onchange="updateCtrlField('${item.id}','name',this.value)"></td>
+      <td>${ctrlCatSelect(item.cat, item.id)}</td>
+      <td><input class="editable-cell" style="min-width:180px" value="${item.variant}" onchange="updateCtrlField('${item.id}','variant',this.value)"></td>
+      <td><input class="editable-cell" style="min-width:120px" value="${item.pn||''}" placeholder="part number..." onchange="updateCtrlField('${item.id}','pn',this.value)"></td>
+      <td class="qty-cell">
+        <div class="qty-control">
+          <button class="qty-btn minus" onclick="adjCtrl('${item.id}',-1)">−</button>
+          <input class="qty-input" type="number" value="${item.qty||0}" onchange="updateCtrlField('${item.id}','qty',this.value);renderControllers()">
+          <button class="qty-btn plus" onclick="adjCtrl('${item.id}',1)">+</button>
+        </div>
+      </td>
+      <td><input class="notes-input" value="${item.notes||''}" placeholder="notes..." onchange="updateCtrlField('${item.id}','notes',this.value)"></td>
+      <td><button class="del-btn" onclick="deleteCtrl('${item.id}')">×</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  const lbl = document.getElementById('ctrl-count-label');
+  if (lbl) lbl.textContent = `${count} ITEMS`;
+  document.getElementById('nc-controllers').textContent = controllers.length;
+}
+
+function adjCtrl(id, delta) {
+  const r = controllers.find(c => c.id === id);
+  if (r) { r.qty = Math.max(0, (r.qty||0) + delta); save(); renderControllers(); }
+}
+function addController() {
+  controllers.push({
+    id: 'ctrl' + Date.now(), name:'New Part', cat:'MCU',
+    variant:'', pn:'', qty:1, notes:'', checked:false
+  });
+  save(); renderControllers(); showToast('Row added');
+}
+function deleteCtrl(id) {
+  controllers = controllers.filter(c => c.id !== id);
+  save(); renderControllers(); showToast('Deleted');
+}
+function exportControllers() {
+  const rows = [['Name','Category','Variant','Part #','Qty','Notes']];
+  controllers.forEach(c => rows.push([c.name, c.cat, c.variant, c.pn||'', c.qty||0, c.notes||'']));
+  const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv,' + encodeURIComponent(csv);
+  a.download = 'controllers.csv';
+  a.click();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// ADD / DELETE ROWS
+// ═══════════════════════════════════════════════════════════════════
+function addRow(section) {
+  const id = section[0] + Date.now();
+  const base = { id, val:'New', pkg:'0603', pn:'', prio:2, target:100 };
+  if (section==='capacitors') { base.vlt='50V'; base.die='X7R'; }
+  if (section==='inductors')  { base.type='Power'; base.cur=''; }
+  if (section==='crystals')   { base.type='Crystal'; base.load=''; }
+  if (section==='resistors')  { base.pw='0.1W'; }
+  sections[section].push(base);
+  save(); renderSection(section); showToast('Row added');
+}
+function deleteRow(section, id) {
+  sections[section] = sections[section].filter(r => r.id !== id);
+  delete S[id];
+  save(); renderSection(section); showToast('Deleted');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// QTY
+// ═══════════════════════════════════════════════════════════════════
+function adj(id, delta, section) {
+  setQty(id, (getS(id).qty) + delta);
+  renderSection(section);
+  showToast(`${getS(id).qty} pcs`);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SUMMARY / STATS
+// ═══════════════════════════════════════════════════════════════════
+function updateSummary(section) {
+  const parts = sections[section].filter(d => d.id && !d.group);
+  let ok=0, low=0, needed=0;
+  parts.forEach(p => {
+    const st = getStatus(getS(p.id).qty, p.target);
+    if (st==='ok') ok++; else if (st==='low') low++; else needed++;
+  });
+  const colors = { resistors:'var(--orange)', capacitors:'var(--blue)', inductors:'var(--teal)', crystals:'var(--pink)' };
+  const col = colors[section];
+  const el = document.getElementById('summary-' + section);
+  if (!el) return;
+  el.innerHTML = `
+    <div class="prog-card"><div class="prog-label">TOTAL VALUES</div><div class="prog-value" style="color:${col}">${parts.length}</div><div class="prog-sub">in section</div></div>
+    <div class="prog-card"><div class="prog-label">STOCKED OK</div><div class="prog-value" style="color:var(--green)">${ok}</div><div class="prog-sub">≥50% of target</div></div>
+    <div class="prog-card"><div class="prog-label">LOW STOCK</div><div class="prog-value" style="color:var(--amber)">${low}</div><div class="prog-sub">25–50%</div></div>
+    <div class="prog-card"><div class="prog-label">NEED TO BUY</div><div class="prog-value" style="color:var(--red)">${needed}</div><div class="prog-sub">&lt;25%</div></div>
+  `;
+}
+
+function updateHeader() {
+  let total=0, ok=0, low=0, needed=0;
+  ['resistors','capacitors','inductors','crystals'].forEach(sec => {
+    sections[sec].filter(p=>p.id&&!p.group).forEach(p => {
+      total++;
+      const st = getStatus(getS(p.id).qty, p.target);
+      if (st==='ok') ok++; else if (st==='low') low++; else needed++;
+    });
+  });
+  document.getElementById('val-total').textContent   = total;
+  document.getElementById('val-stocked').textContent = ok;
+  document.getElementById('val-low').textContent     = low;
+  document.getElementById('val-needed').textContent  = needed;
+  const sn = document.getElementById('stat-needed');
+  if (sn) sn.className = 'stat-pill ' + (needed>0?'danger':'ok');
+}
+
+function updateNavCounts() {
+  ['resistors','capacitors','inductors','crystals'].forEach(sec => {
+    const parts = sections[sec].filter(p=>p.id&&!p.group);
+    const needed = parts.filter(p => getStatus(getS(p.id).qty,p.target)==='needed').length;
+    const el = document.getElementById('nc-'+sec);
+    if (el) el.textContent = parts.length;
+  });
+  const allNeeded = ['resistors','capacitors','inductors','crystals'].reduce((acc,sec) => {
+    return acc + sections[sec].filter(p=>p.id&&!p.group).filter(p=>getStatus(getS(p.id).qty,p.target)==='needed').length;
+  }, 0);
+  const nr = document.getElementById('nc-reorder');
+  if (nr) nr.textContent = allNeeded > 0 ? allNeeded + ' items' : 'clear';
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// REORDER PAGE
+// ═══════════════════════════════════════════════════════════════════
+function renderReorder() {
+  const el = document.getElementById('reorder-content');
+  if (!el) return;
+  const all = [];
+  ['resistors','capacitors','inductors','crystals'].forEach(sec => {
+    sections[sec].filter(p=>p.id&&!p.group).forEach(p => all.push({...p, section:sec}));
+  });
+  const needed = all.filter(p => getStatus(getS(p.id).qty, p.target) !== 'ok');
+  if (!needed.length) {
+    el.innerHTML = `<div style="padding:40px;text-align:center;font-family:var(--mono);color:var(--green)">✓ ALL PARTS AT TARGET STOCK</div>`;
+    return;
+  }
+  const groups = {
+    needed: needed.filter(p => getStatus(getS(p.id).qty, p.target)==='needed'),
+    low:    needed.filter(p => getStatus(getS(p.id).qty, p.target)==='low')
+  };
+  const secColors = { resistors:'var(--orange)', capacitors:'var(--blue)', inductors:'var(--teal)', crystals:'var(--pink)' };
+  let html = '';
+  [['needed','🔴 MUST BUY','var(--red)'],['low','🟡 RUNNING LOW','var(--amber)']].forEach(([key,label,color]) => {
+    if (!groups[key].length) return;
+    html += `<div style="margin-bottom:18px">
+      <div style="font-family:var(--mono);font-size:10px;color:${color};letter-spacing:1px;margin-bottom:8px;padding:5px 10px;background:var(--surface2);border-left:3px solid ${color}">${label} — ${groups[key].length} items</div>
+      <table class="parts-table"><thead><tr>
+        <th>SECTION</th><th>VALUE</th><th>PKG</th><th>PART #</th><th>TARGET</th><th>HAVE</th><th>BUY QTY</th>
+      </tr></thead><tbody>`;
+    groups[key].forEach(p => {
+      const have = getS(p.id).qty;
+      const buy  = p.target - have;
+      const scol = secColors[p.section];
+      html += `<tr>
+        <td style="font-family:var(--mono);font-size:9px;color:${scol}">${p.section.toUpperCase()}</td>
+        <td class="value-cell">${p.val}</td>
+        <td class="pkg-cell"><span class="pkg-badge">${p.pkg}</span></td>
+        <td style="font-family:var(--mono);font-size:10px;color:var(--text-dim)">${p.pn||'—'}</td>
+        <td style="font-family:var(--mono);font-size:10px;text-align:center">${p.target}</td>
+        <td style="font-family:var(--mono);font-size:10px;color:${color};text-align:center">${have}</td>
+        <td style="font-family:var(--mono);font-size:11px;color:var(--accent);font-weight:700;text-align:center">${buy}</td>
+      </tr>`;
+    });
+    html += `</tbody></table></div>`;
+  });
+  el.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// FILTER / SEARCH / NAV
+// ═══════════════════════════════════════════════════════════════════
+function setFilter(section, val, btn) {
+  filters[section] = val;
+  btn.closest('.toolbar').querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderSection(section);
+}
+
+function clearSection(section) {
+  sections[section].filter(p=>p.id&&!p.group).forEach(p => {
+    S[p.id] = { qty:0, checked:false };
+  });
+  save(); renderSection(section); showToast('Quantities cleared');
+}
+
+let currentPage = 'resistors';
+function navigate(page, el) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  el.classList.add('active');
+  currentPage = page;
+  if (page==='reorder') renderReorder();
+  else if (page==='controllers') renderControllers();
+  else if (['resistors','capacitors','inductors','crystals'].includes(page)) renderSection(page);
+  // deploy page is static HTML — no render function needed
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// COPY COMMAND HELPER
+// ═══════════════════════════════════════════════════════════════════
+function copyCmd(btn) {
+  const block = btn.closest('.cmd-block');
+  const text = Array.from(block.querySelectorAll('pre')[0].childNodes)
+    .map(n => n.textContent).join('').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'COPIED!';
+    btn.style.color = 'var(--green)';
+    setTimeout(() => { btn.textContent = 'COPY'; btn.style.color = ''; }, 1800);
+  }).catch(() => {
+    btn.textContent = 'ERR';
+    setTimeout(() => { btn.textContent = 'COPY'; }, 1800);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════════════════
+let toastT;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1600);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════
+(async () => {
+  await loadState();
+  renderSection('resistors');
+  ['capacitors','inductors','crystals'].forEach(s => updateSummary(s));
+  updateHeader(); updateNavCounts();
+})();
+</script>
+</body>
+</html>

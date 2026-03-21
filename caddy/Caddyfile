@@ -1,0 +1,48 @@
+(tls_cloudflare) {
+  tls {
+    dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+  }
+}
+
+(authelia) {
+  forward_auth localhost:9091 {
+    uri /api/authz/forward-auth
+    copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+  }
+}
+
+auth.highcarlsagan.dev {
+  import tls_cloudflare
+  reverse_proxy localhost:9091
+}
+
+ha.highcarlsagan.dev {
+  import tls_cloudflare
+  import authelia
+  reverse_proxy localhost:8123
+}
+
+pihole.highcarlsagan.dev {
+  import tls_cloudflare
+  import authelia
+  redir / /admin 302
+  reverse_proxy http://localhost:8888
+}
+
+files.highcarlsagan.dev {
+  import tls_cloudflare
+  import authelia
+  reverse_proxy localhost:3000
+}
+
+passive.highcarlsagan.dev {
+  import tls_cloudflare
+  import authelia
+  reverse_proxy localhost:8080
+}
+
+torrent.highcarlsagan.dev {
+  import tls_cloudflare
+  import authelia
+  reverse_proxy localhost:8081
+}

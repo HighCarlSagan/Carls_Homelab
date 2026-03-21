@@ -1,0 +1,15 @@
+# Secrets
+authelia/users.yml
+*.db
+*.sqlite3
+*.pem
+*.key
+*.crt
+pihole/config.json
+
+# Logs
+*.log
+
+# Temp
+*.tmp
+*.bak
