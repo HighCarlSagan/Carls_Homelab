@@ -41,6 +41,12 @@ passive.highcarlsagan.dev {
   reverse_proxy localhost:8080
 }
 
+status.highcarlsagan.dev {
+  import tls_cloudflare
+  import authelia
+  reverse_proxy http://127.0.0.1:3001
+}
+
 torrent.highcarlsagan.dev {
   import tls_cloudflare
   import authelia

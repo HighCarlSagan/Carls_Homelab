@@ -26,6 +26,18 @@ ingress:
     originRequest:
       noTLSVerify: true
       originServerName: torrent.highcarlsagan.dev
+  - hostname: status.highcarlsagan.dev
+    service: https://localhost:443
+    originRequest:
+      noTLSVerify: true
+      originServerName: status.highcarlsagan.dev
+
+  - hostname: torrent.highcarlsagan.dev
+    service: https://localhost:443
+    originRequest:
+      noTLSVerify: true
+      originServerName: torrent.highcarlsagan.dev
+
   - hostname: auth.highcarlsagan.dev
     service: https://localhost:443
     originRequest:
