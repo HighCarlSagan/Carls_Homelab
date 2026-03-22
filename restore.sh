@@ -23,7 +23,7 @@ sudo apt update && sudo apt upgrade -y
 
 # ── 2. Install base dependencies ───────────────────────────────────
 echo "[2/10] Installing dependencies..."
-sudo apt install -y   curl git fail2ban avahi-daemon unattended-upgrades   mosquitto mosquitto-clients   python3
+sudo apt install -y   curl git fail2ban avahi-daemon unattended-upgrades   mosquitto mosquitto-clients   python3 wakeonlan
 
 # ── 3. Docker ──────────────────────────────────────────────────────
 echo "[3/10] Installing Docker..."
@@ -197,4 +197,8 @@ echo "  6. Re-run filebrowser config init + users add"
 echo "  7. Re-register TOTP in Google Authenticator"
 echo "  8. Enable Tailscale DNS override in admin console"
 echo "  9. Rebuild Caddy patch if token regex breaks again"
+echo "  10. Restore HA shell_command SSH key:"
+echo "      cp ~/.ssh/id_pi_to_arch /etc/homeassistant/id_pi_to_arch"
+echo "      chmod 600 /etc/homeassistant/id_pi_to_arch"
+echo "      Add wakearch alias to ~/.bashrc"
 echo "============================================================"
