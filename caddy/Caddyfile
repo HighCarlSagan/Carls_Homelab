@@ -1,3 +1,9 @@
+{
+  servers {
+    trusted_proxies static private_ranges
+  }
+}
+
 (tls_cloudflare) {
   tls {
     dns cloudflare {env.CLOUDFLARE_API_TOKEN}
@@ -9,6 +15,13 @@
     uri /api/authz/forward-auth
     copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
   }
+}
+
+docs.highcarlsagan.dev {
+  import tls_cloudflare
+  import authelia
+  root * /srv/filebrowser
+  file_server
 }
 
 auth.highcarlsagan.dev {
@@ -51,4 +64,18 @@ torrent.highcarlsagan.dev {
   import tls_cloudflare
   import authelia
   reverse_proxy localhost:8081
+}
+
+resume.highcarlsagan.dev {
+  import tls_cloudflare
+  root * /var/www/portfolio
+  try_files resume.html
+  file_server
+}
+
+highcarlsagan.dev {
+  import tls_cloudflare
+  root * /var/www/portfolio
+    file_server
+    encode gzip
 }

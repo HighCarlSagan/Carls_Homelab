@@ -562,7 +562,7 @@
       <div class="card">
         <div class="card-label">Arch PC Tailscale</div>
         <div class="card-value">100.121.91.124</div>
-        <div class="card-sub">WiFi: 192.168.0.26</div>
+        <div class="card-sub">Ethernet: 192.168.0.194 (static) · MAC: 34:5a:60:a2:91:94</div>
       </div>
       <div class="card">
         <div class="card-label">SSH</div>
@@ -625,6 +625,7 @@ Browser → Cloudflare CDN → Tunnel → cloudflared → Caddy → Authelia →
           <tr><td>Passives Tracker</td><td class="mono">8080</td><td class="mono2">Python/systemd</td><td class="mono3">passive.highcarlsagan.dev</td><td><span class="status status-up">● UP</span></td><td class="mono2">loginctl linger</td></tr>
           <tr><td>Uptime Kuma</td><td class="mono">3001</td><td class="mono2">Docker</td><td class="mono3">status.highcarlsagan.dev</td><td><span class="status status-up">● UP</span></td><td class="mono2">louislam/uptime-kuma:1</td></tr>
           <tr><td>qBittorrent</td><td class="mono">8081</td><td class="mono2">Docker</td><td class="mono3">torrent.highcarlsagan.dev</td><td><span class="status status-up">● UP</span></td><td class="mono2">downloads → /srv/filebrowser/downloads</td></tr>
+          <tr><td>Resume</td><td class="mono">—</td><td class="mono2">static file</td><td class="mono3">resume.highcarlsagan.dev</td><td><span class="status status-up">● UP</span></td><td class="mono2">/var/www/portfolio/resume.html · public, no auth</td></tr>
         </tbody>
       </table>
     </div>
@@ -632,7 +633,7 @@ Browser → Cloudflare CDN → Tunnel → cloudflared → Caddy → Authelia →
     <div style="margin-top:16px">
       <div class="alert alert-info">
         <span class="alert-icon">ℹ</span>
-        <span>All subdomains are protected by Authelia 2FA (username: <strong>mak</strong> + Google Authenticator TOTP). The exception is <strong>auth.highcarlsagan.dev</strong> which is the Authelia portal itself.</span>
+        <span>All subdomains are protected by Authelia 2FA (username: <strong>mak</strong> + Google Authenticator TOTP). Exceptions: <strong>auth.highcarlsagan.dev</strong> (Authelia portal itself), <strong>highcarlsagan.dev</strong> (portfolio, public), and <strong>resume.highcarlsagan.dev</strong> (resume, public).</span>
       </div>
     </div>
   </section>
@@ -656,7 +657,7 @@ Browser → Cloudflare CDN → Tunnel → cloudflared → Caddy → Authelia →
       <li class="check-done"><span class="check-icon">✓</span><span><strong>Section 06</strong> — Home Assistant + Mosquitto MQTT · onboarded, MQTT connected</span></li>
       <li class="check-done"><span class="check-icon">✓</span><span><strong>Section 07</strong> — Filebrowser · binary install, /srv/filebrowser root</span></li>
       <li class="check-done"><span class="check-icon">✓</span><span><strong>Section 08</strong> — Passives Tracker · migrated from Arch PC, systemd service</span></li>
-      <li class="check-pending"><span class="check-icon">◌</span><span><strong>Section 09</strong> — Arch PC Integration · <em>blocked on ethernet cable (arriving soon)</em></span></li>
+      <li class="check-done"><span class="check-icon">✓</span><span><strong>Section 09</strong> — Arch PC Integration · ethernet static IP 192.168.0.194, WoL enabled, wakearch alias on Pi + Termux</span></li>
       <li class="check-done"><span class="check-icon">✓</span><span><strong>Section 10</strong> — Backup + Recovery · git repo, restore.sh, daily cron at 2am</span></li>
       <li class="check-done"><span class="check-icon">✓</span><span><strong>Section 11</strong> — qBittorrent + Uptime Kuma · both running and monitored</span></li>
       <li class="check-deferred"><span class="check-icon">—</span><span><strong>Section 12</strong> — Troubleshooting Reference · to be populated</span></li>
@@ -703,8 +704,8 @@ Browser → Cloudflare CDN → Tunnel → cloudflared → Caddy → Authelia →
           <li class="check-pending"><span class="check-icon">!</span><span>Re-create Mosquitto passwd file + fix ownership</span></li>
           <li class="check-pending"><span class="check-icon">!</span><span>Re-initialize Filebrowser DB + admin user</span></li>
           <li class="check-pending"><span class="check-icon">!</span><span>sudo tailscale up — re-authenticate</span></li>
-          <li class="check-pending"><span class="check-icon">!</span><span>Re-register TOTP in Google Authenticator</span></li>
-          <li class="check-pending"><span class="check-icon">!</span><span>Enable Tailscale DNS override in admin console</span></li>
+          <li class="check-done"><span class="check-icon">✓</span><span>Re-register TOTP in Google Authenticator</span></li>
+          <li class="check-done"><span class="check-icon">✓</span><span>Enable Tailscale DNS override in admin console</span></li>
         </ul>
       </div>
     </div>
@@ -721,7 +722,7 @@ Browser → Cloudflare CDN → Tunnel → cloudflared → Caddy → Authelia →
         <div class="step-num">2</div>
         <div class="step-content">
           <div class="step-title">Clone repo and run restore.sh</div>
-          <div class="step-desc"><code>git clone git@github.com:HighCarlSagan/Carls_Homelab.git && bash Carls_Homelab/restore.sh</code></div>
+          <div class="step-desc"><code>git clone <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="23444a5763444a574b56410d404c4e">[email&#160;protected]</a>:HighCarlSagan/Carls_Homelab.git && bash Carls_Homelab/restore.sh</code></div>
         </div>
       </div>
       <div class="step step-manual">
@@ -794,6 +795,8 @@ Browser → Cloudflare CDN → Tunnel → cloudflared → Caddy → Authelia →
 
       <div class="alert alert-warn">
         <span class="alert-icon">⚠</span>
+        <div><strong>Caddy forward_auth requires trusted_proxies.</strong> Without <code>trusted_proxies static private_ranges</code> in the global options block, Authelia never intercepts requests — Caddy silently bypasses auth. Always include this in the global block when rebuilding Caddyfile.</div>
+        <div><strong>WoL alias on Pi:</strong> <code>wakearch</code> = <code>wakeonlan 34:5a:60:a2:91:94</code>. Termux alias <code>wakearch</code> SSHes into Pi and runs it. wol.service ensures NIC stays in WoL mode across reboots.</div>
         <div><strong>Home Assistant reverse proxy config.</strong> Must be at root level of configuration.yaml, NOT nested under <code>homeassistant:</code>. Correct: <code>http: / use_x_forwarded_for: true / trusted_proxies: [127.0.0.1, ::1]</code></div>
       </div>
 
@@ -871,27 +874,29 @@ Browser → Cloudflare CDN → Tunnel → cloudflared → Caddy → Authelia →
     <div class="section-header">
       <div class="section-icon icon-yellow">◷</div>
       <div>
-        <div class="section-num">07 // PENDING</div>
+        <div class="section-num">07 // OUTSTANDING</div>
         <h2>Outstanding Items</h2>
       </div>
     </div>
 
     <div class="grid2">
       <div>
-        <p style="font-size:11px;color:var(--text3);font-family:var(--mono);letter-spacing:0.05em;margin-bottom:10px">BLOCKED ON ETHERNET CABLE</p>
+        <p style="font-size:11px;color:var(--text3);font-family:var(--mono);letter-spacing:0.05em;margin-bottom:10px">COMPLETED 2026-03-22</p>
         <ul class="checklist">
-          <li class="check-pending"><span class="check-icon">◌</span><span>Section 09 — Arch PC static IP on enp8s0</span></li>
-          <li class="check-pending"><span class="check-icon">◌</span><span>Fallback DNS on Arch PC</span></li>
-          <li class="check-pending"><span class="check-icon">◌</span><span>Wake-on-LAN (BIOS + nmcli + HA switch)</span></li>
-          <li class="check-pending"><span class="check-icon">◌</span><span>HA — Arch PC shutdown shell_command</span></li>
-          <li class="check-pending"><span class="check-icon">◌</span><span>Arch PC configs backed up to git repo</span></li>
+          <li class="check-done"><span class="check-icon">✓</span><span>Section 09 — Arch PC static IP on enp8s0 (192.168.0.194)</span></li>
+          <li class="check-done"><span class="check-icon">✓</span><span>Wake-on-LAN — wol.service, wakearch alias on Pi + Termux</span></li>
+          <li class="check-done"><span class="check-icon">✓</span><span>Authelia forward_auth fixed — trusted_proxies static private_ranges</span></li>
+          <li class="check-done"><span class="check-icon">✓</span><span>Tailscale DNS override enabled — Pi-hole active for all mesh devices</span></li>
+          <li class="check-done"><span class="check-icon">✓</span><span>TOTP enrolled in Google Authenticator</span></li>
         </ul>
       </div>
       <div>
         <p style="font-size:11px;color:var(--text3);font-family:var(--mono);letter-spacing:0.05em;margin-bottom:10px">DEFERRED / FUTURE</p>
         <ul class="checklist">
+          <li class="check-pending"><span class="check-icon">◌</span><span>HA — Arch PC shutdown shell_command</span></li>
           <li class="check-pending"><span class="check-icon">◌</span><span>HA — Arch PC update notifications via MQTT</span></li>
           <li class="check-pending"><span class="check-icon">◌</span><span>ESP32 MQTT device integration</span></li>
+          <li class="check-pending"><span class="check-icon">◌</span><span>Rotate SSH keypair (key briefly exposed 2026-03-22)</span></li>
           <li class="check-deferred"><span class="check-icon">—</span><span>Pi-hole extra blocklists (until ads get intrusive)</span></li>
           <li class="check-deferred"><span class="check-icon">—</span><span>Section 12 — Troubleshooting reference</span></li>
           <li class="check-deferred"><span class="check-icon">—</span><span>Syncthing — phone/PC/Pi file sync (optional)</span></li>
@@ -914,8 +919,8 @@ Browser → Cloudflare CDN → Tunnel → cloudflared → Caddy → Authelia →
     <div class="grid2">
       <div class="card">
         <div class="card-label">Receive</div>
-        <div class="card-value">mayank@highcarlsagan.dev</div>
-        <div class="card-sub">Cloudflare Email Routing → mayank2598@gmail.com</div>
+        <div class="card-value"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="620f031b030c09220a0b050a0103100e110305030c4c060714">[email&#160;protected]</a></div>
+        <div class="card-sub">Cloudflare Email Routing → <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4c212d352d22277e7975740c2b212d2520622f2321">[email&#160;protected]</a></div>
       </div>
       <div class="card">
         <div class="card-label">Send</div>
@@ -927,7 +932,7 @@ Browser → Cloudflare CDN → Tunnel → cloudflared → Caddy → Authelia →
     <div style="margin-top:12px">
       <div class="alert alert-info">
         <span class="alert-icon">ℹ</span>
-        <span>To send: compose in Gmail → click <strong>From</strong> field → select <strong>mayank@highcarlsagan.dev</strong>. Original mayank2598@gmail.com is unaffected. Cloudflare Email Routing is free, no mail server required.</span>
+        <span>To send: compose in Gmail → click <strong>From</strong> field → select <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="9df0fce4fcf3f6ddf5f4faf5fefceff1eefcfafcf3b3f9f8eb">[email&#160;protected]</a></strong>. Original <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6a070b130b0401585f53522a0d070b030644090507">[email&#160;protected]</a> is unaffected. Cloudflare Email Routing is free, no mail server required.</span>
       </div>
     </div>
   </section>
@@ -1198,41 +1203,14 @@ Browser → Cloudflare CDN → Tunnel → cloudflared → Caddy → Authelia →
   <footer>
     <p>// highcarlsagan.dev homelab · Raspberry Pi 4 · 2026-03-21</p>
     <p>github.com/HighCarlSagan/Carls_Homelab</p>
+    <p style="margin-top:6px;font-size:10px;color:var(--text3)">last updated 2026-03-22 — Section 09 complete · forward_auth fixed · Tailscale DNS override enabled · resume.highcarlsagan.dev added</p>
   </footer>
 
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
   // Copy button functionality
   document.querySelectorAll('.copy-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const text = btn.dataset.copy;
-      navigator.clipboard.writeText(text).then(() => {
-        btn.textContent = 'copied!';
-        btn.classList.add('copied');
-        setTimeout(() => {
-          btn.textContent = 'copy';
-          btn.classList.remove('copied');
-        }, 2000);
-      });
-    });
-  });
-
-  // Fade in sections on scroll
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.style.opacity = '1';
-        entry.target.style.transform = 'translateY(0)';
-      }
-    });
-  }, { threshold: 0.05 });
-
-  document.querySelectorAll('section').forEach(s => {
-    s.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-    observer.observe(s);
-  });
-</script>
-
-</body>
-</html>
+      navigator.clipboard.wri
