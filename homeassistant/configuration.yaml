@@ -3,3 +3,7 @@ http:
   trusted_proxies:
     - 127.0.0.1
     - ::1
+
+shell_command:
+  shutdown_arch: "ssh -i /config/id_pi_to_arch -p 2222 -o StrictHostKeyChecking=no carl@192.168.0.194 sudo systemctl poweroff"
+  wakeup_arch: "wakeonlan 34:5a:60:a2:91:94"
