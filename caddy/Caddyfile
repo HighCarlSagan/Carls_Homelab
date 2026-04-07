@@ -60,6 +60,14 @@ status.highcarlsagan.dev {
   reverse_proxy http://127.0.0.1:3001
 }
 
+career-dashboard.highcarlsagan.dev {
+  import tls_cloudflare
+  import authelia
+  file_server {
+    root /srv/career
+  }
+}
+
 torrent.highcarlsagan.dev {
   import tls_cloudflare
   import authelia
