@@ -1,0 +1,74 @@
+{% if view == 'kanban' %}
+<section class="kanban">
+  {% for col_status in statuses %}
+  <div class="kanban-col">
+    <div class="kanban-col-header">
+      <span class="kanban-col-title">{{ col_status }}</span>
+      <span class="kanban-col-count">{{ projects|selectattr('status','equalto',col_status)|list|length }}</span>
+    </div>
+    <div class="kanban-col-body">
+      {% for p in projects if p.status == col_status %}
+        {% include 'partials/project_card.html' %}
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+</section>
+{% elif view == 'cards' %}
+<section class="cards-grid">
+  {% for p in projects %}
+    {% include 'partials/project_card.html' %}
+  {% endfor %}
+</section>
+{% elif view == 'compact' %}
+<section class="cards-grid cards-compact">
+  {% for p in projects %}
+    {% include 'partials/project_card_compact.html' %}
+  {% endfor %}
+</section>
+{% elif view == 'gallery' %}
+<section class="cards-grid cards-gallery">
+  {% for p in projects %}
+    {% include 'partials/project_card_gallery.html' %}
+  {% endfor %}
+</section>
+{% else %}
+<section class="table-wrap">
+  <table class="ptable">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Category</th>
+        <th>Status</th>
+        <th>Urgency</th>
+        <th>Timeline</th>
+        <th>Tasks</th>
+        <th>Tags</th>
+        <th>Updated</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in projects %}
+      <tr onclick="window.location='/project/{{ p.slug }}'">
+        <td><strong>{{ p.title }}</strong></td>
+        <td><span class="cat-tag">{{ p.category }}</span></td>
+        <td><span class="status-tag status-{{ p.status }}">{{ p.status }}</span></td>
+        <td>{{ p.urgency }}</td>
+        <td>{{ p.timeline_estimate or '—' }}</td>
+        <td>{{ p.task_done }}/{{ p.task_total }}</td>
+        <td>
+          {% for t in p.tags %}<span class="tag">#{{ t }}</span>{% endfor %}
+        </td>
+        <td class="muted">{{ p.last_updated[:10] if p.last_updated else '' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+
+{% if projects|length == 0 %}
+<div class="empty-state">
+  <p class="muted">No projects match these filters.</p>
+</div>
+{% endif %}

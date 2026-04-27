@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="midnight">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Carl's Project Tracker{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="/" class="brand">
+        <span class="brand-mark">▣</span>
+        <span class="brand-name">project tracker</span>
+        <span class="brand-by">// carl</span>
+      </a>
+      <nav class="topnav">
+        <a href="/" class="navlink">Dashboard</a>
+        <a href="https://highcarlsagan.dev" class="navlink" target="_blank">Portfolio ↗</a>
+        <a href="https://github.com/HighCarlSagan" class="navlink" target="_blank">GitHub ↗</a>
+      </nav>
+      <div class="topright">
+        {% if admin %}<span class="badge badge-admin">admin</span>{% else %}<span class="badge">public</span>{% endif %}
+        <select id="theme-select" class="theme-select" onchange="setTheme(this.value)">
+          <option value="midnight">Midnight</option>
+          <option value="cyberpunk">Cyberpunk</option>
+          <option value="terminal">Terminal</option>
+          <option value="paper">Paper</option>
+          <option value="solarized">Solarized</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <span>highcarlsagan.dev · self-hosted on a Pi · {{ projects|length if projects else '' }}</span>
+  </footer>
+
+  <script>
+    function setTheme(name) {
+      document.documentElement.setAttribute('data-theme', name);
+      localStorage.setItem('tracker-theme', name);
+    }
+    (function() {
+      const saved = localStorage.getItem('tracker-theme') || 'midnight';
+      document.documentElement.setAttribute('data-theme', saved);
+      const sel = document.getElementById('theme-select');
+      if (sel) sel.value = saved;
+    })();
+  </script>
+</body>
+</html>

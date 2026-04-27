@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}{{ p.title }} · Tracker{% endblock %}
+
+{% block content %}
+<div class="back"><a href="/">← All projects</a></div>
+
+<div class="project-detail">
+  <header class="pd-header">
+    <div class="pd-meta">
+      <span class="cat-tag">{{ p.category }}</span>
+      {% if p.subcategory %}<span class="muted">/ {{ p.subcategory }}</span>{% endif %}
+      <span class="status-tag status-{{ p.status }}">{{ p.status }}</span>
+      <span class="urgency urg-{{ p.urgency }}">{{ p.urgency }}</span>
+    </div>
+    <h1>{{ p.title }}</h1>
+    <p class="pd-short">{{ p.description_short }}</p>
+    <div class="pd-meta-row">
+      <div><span class="muted">Timeline</span> {{ p.timeline_estimate or '—' }}</div>
+      {% if p.target_date %}<div><span class="muted">Target</span> {{ p.target_date }}</div>{% endif %}
+      {% if p.completed_date %}<div><span class="muted">Completed</span> {{ p.completed_date }}</div>{% endif %}
+      <div><span class="muted">Updated</span> {{ p.last_updated[:10] if p.last_updated else '—' }}</div>
+    </div>
+    {% if p.tags %}
+    <div class="pd-tags">
+      {% for t in p.tags %}<span class="tag">#{{ t }}</span>{% endfor %}
+    </div>
+    {% endif %}
+    <div class="pd-links">
+      {% if p.github_url %}<a href="{{ p.github_url }}" target="_blank" class="btn btn-ghost">GitHub ↗</a>{% endif %}
+      {% if p.external_url %}<a href="{{ p.external_url }}" target="_blank" class="btn btn-ghost">Link ↗</a>{% endif %}
+    </div>
+  </header>
+
+  <div class="pd-grid">
+    <div class="pd-col-main">
+      <section class="pd-section">
+        <h2>Description</h2>
+        <p class="pd-long">{{ p.description_long or 'No detailed description yet.' }}</p>
+      </section>
+
+      {% if p.tech_stack %}
+      <section class="pd-section">
+        <h2>Tech Stack</h2>
+        <div class="techstack">
+          {% for tech in p.tech_stack.split(',') %}
+          <span class="tech-chip">{{ tech.strip() }}</span>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
+      <section class="pd-section">
+        <h2>Tasks <span class="muted">{{ p.tasks|selectattr('done')|list|length }}/{{ p.tasks|length }}</span></h2>
+        {% if p.tasks %}
+        <ul class="tasklist">
+          {% for t in p.tasks %}
+          <li class="task {% if t.done %}task-done{% endif %}">
+            {% if admin %}
+            <form method="post" action="/api/task/{{ t.id }}/toggle" style="display:inline">
+              <button type="submit" class="task-toggle">{% if t.done %}☑{% else %}☐{% endif %}</button>
+            </form>
+            <span class="task-title">{{ t.title }}</span>
+            <form method="post" action="/api/task/{{ t.id }}/delete" style="display:inline; margin-left:auto" onsubmit="return confirm('Delete task?')">
+              <button type="submit" class="task-del">×</button>
+            </form>
+            {% else %}
+            <span class="task-toggle-static">{% if t.done %}☑{% else %}☐{% endif %}</span>
+            <span class="task-title">{{ t.title }}</span>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="muted">No tasks yet.</p>
+        {% endif %}
+        {% if admin %}
+        <form method="post" action="/api/task/new" class="add-task">
+          <input type="hidden" name="project_id" value="{{ p.id }}">
+          <input type="text" name="title" placeholder="Add a task..." required>
+          <button type="submit" class="btn btn-primary">+ Add</button>
+        </form>
+        {% endif %}
+      </section>
+
+      <section class="pd-section">
+        <h2>Progress Notes</h2>
+        {% if p.notes %}
+        <ul class="noteslist">
+          {% for n in p.notes %}
+          <li class="note">
+            <div class="note-time muted">{{ n.created_at[:16] }}</div>
+            <div class="note-body">{{ n.note }}</div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="muted">No progress notes yet.</p>
+        {% endif %}
+        {% if admin %}
+        <form method="post" action="/api/note/new" class="add-note">
+          <input type="hidden" name="project_id" value="{{ p.id }}">
+          <textarea name="note" placeholder="Log an update..." rows="3" required></textarea>
+          <button type="submit" class="btn btn-primary">+ Log Note</button>
+        </form>
+        {% endif %}
+      </section>
+    </div>
+
+    {% if admin %}
+    <aside class="pd-col-side">
+      <section class="pd-section pd-edit">
+        <h2>Edit Project</h2>
+        <form method="post" action="/api/project/{{ p.id }}/edit" class="edit-form">
+          <label>Title<input type="text" name="title" value="{{ p.title }}" required></label>
+          <label>Category
+            <select name="category">
+              {% for c in all_categories %}
+              <option value="{{ c.name }}" {% if p.category == c.name %}selected{% endif %}>{{ c.icon }} {{ c.name }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label>Subcategory<input type="text" name="subcategory" value="{{ p.subcategory or '' }}"></label>
+          <label>Status
+            <select name="status">
+              {% for s in statuses %}<option value="{{ s }}" {% if p.status == s %}selected{% endif %}>{{ s }}</option>{% endfor %}
+            </select>
+          </label>
+          <label>Urgency
+            <select name="urgency">
+              {% for u in urgencies %}<option value="{{ u }}" {% if p.urgency == u %}selected{% endif %}>{{ u }}</option>{% endfor %}
+            </select>
+          </label>
+          <label>Timeline estimate<input type="text" name="timeline_estimate" value="{{ p.timeline_estimate or '' }}"></label>
+          <label>Tags (comma-separated)<input type="text" name="tags" value="{{ p.tags|join(', ') }}"></label>
+          <label>Tech stack<input type="text" name="tech_stack" value="{{ p.tech_stack or '' }}"></label>
+          <label>GitHub URL<input type="url" name="github_url" value="{{ p.github_url or '' }}"></label>
+          <label>External URL<input type="url" name="external_url" value="{{ p.external_url or '' }}"></label>
+          <label>Short description<input type="text" name="description_short" value="{{ p.description_short or '' }}"></label>
+          <label>Full description<textarea name="description_long" rows="5">{{ p.description_long or '' }}</textarea></label>
+          <label class="checkbox-label">
+            <input type="checkbox" name="is_public" value="1" {% if p.is_public %}checked{% endif %}>
+            Visible on public site
+          </label>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
+
+        <form method="post" action="/api/project/{{ p.id }}/delete" onsubmit="return confirm('Permanently delete this project?')" class="danger-zone">
+          <button type="submit" class="btn btn-danger">Delete project</button>
+        </form>
+      </section>
+    </aside>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

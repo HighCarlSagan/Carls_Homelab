@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="dashboard-header">
+  <div class="dashboard-headline">
+    <h1>Projects</h1>
+    <p class="muted">Hardware, astronomy, software — and everything in between.</p>
+  </div>
+  <div class="dashboard-stats">
+    {% set done = projects|selectattr('status', 'equalto', 'done')|list|length %}
+    {% set ip = projects|selectattr('status', 'equalto', 'in-progress')|list|length %}
+    {% set nx = projects|selectattr('status', 'equalto', 'next')|list|length %}
+    {% set bl = projects|selectattr('status', 'equalto', 'backlog')|list|length %}
+    {% set lt = projects|selectattr('status', 'equalto', 'long-term')|list|length %}
+    <div class="stat"><span class="stat-num">{{ done }}</span><span class="stat-label">done</span></div>
+    <div class="stat"><span class="stat-num accent-prog">{{ ip }}</span><span class="stat-label">in progress</span></div>
+    <div class="stat"><span class="stat-num accent-next">{{ nx }}</span><span class="stat-label">next</span></div>
+    <div class="stat"><span class="stat-num">{{ bl }}</span><span class="stat-label">backlog</span></div>
+    <div class="stat"><span class="stat-num">{{ lt }}</span><span class="stat-label">long-term</span></div>
+  </div>
+</section>
+
+<section class="controls">
+  <div class="controls-row">
+    <input
+      type="text"
+      id="live-search"
+      placeholder="Search as you type — title, description, tech..."
+      value="{{ filters.search or '' }}"
+      class="search"
+      autocomplete="off"
+    >
+    <select id="filter-category">
+      <option value="all">All categories</option>
+      {% for c in categories %}
+      <option value="{{ c.name }}" {% if filters.category == c.name %}selected{% endif %}>{{ c.icon }} {{ c.name }}</option>
+      {% endfor %}
+    </select>
+    <select id="filter-tag">
+      <option value="all">All tags</option>
+      {% for t in tags %}
+      <option value="{{ t }}" {% if filters.tag == t %}selected{% endif %}>#{{ t }}</option>
+      {% endfor %}
+    </select>
+    <select id="filter-status">
+      <option value="all">All statuses</option>
+      {% for s in statuses %}
+      <option value="{{ s }}" {% if filters.status == s %}selected{% endif %}>{{ s }}</option>
+      {% endfor %}
+    </select>
+    <button type="button" class="btn btn-ghost" onclick="clearFilters()">Clear</button>
+  </div>
+
+  <div class="controls-row controls-views">
+    <span class="controls-label">Layout</span>
+    <button type="button" class="viewtab {% if view == 'kanban' %}viewtab-active{% endif %}" data-view="kanban" onclick="setView('kanban')">Kanban</button>
+    <button type="button" class="viewtab {% if view == 'cards' %}viewtab-active{% endif %}" data-view="cards" onclick="setView('cards')">Cards</button>
+    <button type="button" class="viewtab {% if view == 'compact' %}viewtab-active{% endif %}" data-view="compact" onclick="setView('compact')">Compact</button>
+    <button type="button" class="viewtab {% if view == 'gallery' %}viewtab-active{% endif %}" data-view="gallery" onclick="setView('gallery')">Gallery</button>
+    <button type="button" class="viewtab {% if view == 'table' %}viewtab-active{% endif %}" data-view="table" onclick="setView('table')">Table</button>
+
+    {% if admin %}
+    <button type="button" class="btn btn-add" style="margin-left: auto" onclick="document.getElementById('new-project-modal').style.display='flex'">+ New Project</button>
+    {% endif %}
+  </div>
+</section>
+
+<div id="results-container">
+  {% include 'partials/results.html' %}
+</div>
+
+{% if admin %}
+<div id="new-project-modal" class="modal" style="display:none">
+  <div class="modal-inner">
+    <div class="modal-head">
+      <h2>New Project</h2>
+      <button onclick="document.getElementById('new-project-modal').style.display='none'" class="btn-close">×</button>
+    </div>
+    <form method="post" action="/api/project/new">
+      <label>Title<input type="text" name="title" required></label>
+      <label>Category
+        <select name="category" required>
+          {% for c in categories %}<option value="{{ c.name }}">{{ c.icon }} {{ c.name }}</option>{% endfor %}
+        </select>
+      </label>
+      <label>Status
+        <select name="status">
+          {% for s in statuses %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+        </select>
+      </label>
+      <label>Short description<input type="text" name="description_short"></label>
+      <label>Timeline estimate<input type="text" name="timeline_estimate" placeholder="e.g. 2-3 months"></label>
+      <button type="submit" class="btn btn-primary">Create</button>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<script>
+  // ---------------- Live filtering and search ----------------
+  let currentView = "{{ view }}";
+  let debounceTimer = null;
+
+  function getFilters() {
+    return {
+      search: document.getElementById('live-search').value,
+      category: document.getElementById('filter-category').value,
+      tag: document.getElementById('filter-tag').value,
+      status: document.getElementById('filter-status').value,
+      view: currentView,
+    };
+  }
+
+  function buildQuery(f) {
+    const params = new URLSearchParams();
+    if (f.search) params.set('search', f.search);
+    if (f.category && f.category !== 'all') params.set('category', f.category);
+    if (f.tag && f.tag !== 'all') params.set('tag', f.tag);
+    if (f.status && f.status !== 'all') params.set('status', f.status);
+    if (f.view) params.set('view', f.view);
+    return params.toString();
+  }
+
+  async function refreshResults() {
+    const f = getFilters();
+    const qs = buildQuery(f);
+    // Update URL without reload so bookmarks/share work
+    history.replaceState(null, '', '?' + qs);
+    try {
+      const resp = await fetch('/api/search?' + qs);
+      const html = await resp.text();
+      document.getElementById('results-container').innerHTML = html;
+    } catch (err) {
+      console.error('Search failed:', err);
+    }
+  }
+
+  function debouncedRefresh() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(refreshResults, 180);
+  }
+
+  function setView(v) {
+    currentView = v;
+    document.querySelectorAll('.viewtab').forEach(b => {
+      b.classList.toggle('viewtab-active', b.dataset.view === v);
+    });
+    localStorage.setItem('tracker-view', v);
+    refreshResults();
+  }
+
+  function clearFilters() {
+    document.getElementById('live-search').value = '';
+    document.getElementById('filter-category').value = 'all';
+    document.getElementById('filter-tag').value = 'all';
+    document.getElementById('filter-status').value = 'all';
+    refreshResults();
+  }
+
+  // Wire up listeners
+  document.getElementById('live-search').addEventListener('input', debouncedRefresh);
+  document.getElementById('filter-category').addEventListener('change', refreshResults);
+  document.getElementById('filter-tag').addEventListener('change', refreshResults);
+  document.getElementById('filter-status').addEventListener('change', refreshResults);
+
+  // Restore preferred layout from localStorage
+  (function() {
+    const saved = localStorage.getItem('tracker-view');
+    if (saved && saved !== currentView) {
+      setView(saved);
+    }
+  })();
+</script>
+{% endblock %}

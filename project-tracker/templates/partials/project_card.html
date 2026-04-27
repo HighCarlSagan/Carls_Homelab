@@ -1,0 +1,19 @@
+<a href="/project/{{ p.slug }}" class="pcard pcard-{{ p.status }}">
+  <div class="pcard-head">
+    <span class="pcard-cat">{{ p.category }}</span>
+    <span class="pcard-urgency urg-{{ p.urgency }}">{{ p.urgency }}</span>
+  </div>
+  <h3 class="pcard-title">{{ p.title }}</h3>
+  <p class="pcard-desc">{{ p.description_short }}</p>
+  <div class="pcard-meta">
+    <span class="pcard-timeline">⏱ {{ p.timeline_estimate or '—' }}</span>
+    {% if p.task_total %}
+    <span class="pcard-tasks">✓ {{ p.task_done }}/{{ p.task_total }}</span>
+    {% endif %}
+  </div>
+  {% if p.tags %}
+  <div class="pcard-tags">
+    {% for t in p.tags %}<span class="tag">#{{ t }}</span>{% endfor %}
+  </div>
+  {% endif %}
+</a>

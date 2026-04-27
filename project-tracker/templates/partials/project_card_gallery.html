@@ -1,0 +1,27 @@
+<a href="/project/{{ p.slug }}" class="pcard pcard-gallery pcard-{{ p.status }}">
+  <div class="pcard-gallery-image" {% if p.image_url %}style="background-image: url('{{ p.image_url }}')"{% endif %}>
+    {% if not p.image_url %}
+    <span class="pcard-gallery-placeholder">{{ p.category[0]|upper }}</span>
+    {% endif %}
+    <span class="pcard-gallery-status status-{{ p.status }}">{{ p.status }}</span>
+  </div>
+  <div class="pcard-gallery-body">
+    <div class="pcard-head">
+      <span class="pcard-cat">{{ p.category }}</span>
+      <span class="pcard-urgency urg-{{ p.urgency }}">{{ p.urgency }}</span>
+    </div>
+    <h3 class="pcard-title">{{ p.title }}</h3>
+    <p class="pcard-desc">{{ p.description_short }}</p>
+    <div class="pcard-meta">
+      <span class="pcard-timeline">⏱ {{ p.timeline_estimate or '—' }}</span>
+      {% if p.task_total %}
+      <span class="pcard-tasks">✓ {{ p.task_done }}/{{ p.task_total }}</span>
+      {% endif %}
+    </div>
+    {% if p.tags %}
+    <div class="pcard-tags">
+      {% for t in p.tags[:4] %}<span class="tag">#{{ t }}</span>{% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</a>

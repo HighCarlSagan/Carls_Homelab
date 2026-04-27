@@ -13,3 +13,8 @@ pihole/config.json
 # Temp
 *.tmp
 *.bak
+
+# Project Tracker
+project-tracker/.venv/
+project-tracker/tracker.db
+project-tracker/__pycache__/

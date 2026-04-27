@@ -1,0 +1,15 @@
+[Unit]
+Description=Project Tracker (FastAPI)
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/homelab-configs/project-tracker
+Environment="TRACKER_ADMIN=false"
+ExecStart=/home/pi/homelab-configs/project-tracker/.venv/bin/uvicorn app:app --host 127.0.0.1 --port 8765
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
