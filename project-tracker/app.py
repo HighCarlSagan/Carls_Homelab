@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "tracker.db"
 SEED_PATH = BASE_DIR / "seed.json"
 
-app = FastAPI(title="Carl's Project Tracker")
+app = FastAPI(title="Carl.s Project Tracker", docs_url=None, redoc_url=None, openapi_url=None)
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 templates = Jinja2Templates(directory=BASE_DIR / "templates")
 
