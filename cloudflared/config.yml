@@ -69,4 +69,9 @@ ingress:
     originRequest:
       noTLSVerify: true
       originServerName: outreach.highcarlsagan.dev
+  - hostname: tracker.highcarlsagan.dev
+    service: https://localhost:443
+    originRequest:
+      noTLSVerify: true
+      originServerName: tracker.highcarlsagan.dev
   - service: http_status:404

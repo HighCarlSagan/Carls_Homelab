@@ -85,7 +85,7 @@ torrent.highcarlsagan.dev {
 resume.highcarlsagan.dev {
   import tls_cloudflare
   root * /var/www/portfolio
-  try_files resume.html
+  try_files MayankS_Resume.pdf
   file_server
 }
 
@@ -94,4 +94,16 @@ highcarlsagan.dev {
   root * /var/www/portfolio
     file_server
     encode gzip
+}
+
+tracker.highcarlsagan.dev {
+    import tls_cloudflare
+    forward_auth 127.0.0.1:9091 {
+        uri /api/authz/forward-auth
+        copy_headers Remote-User Remote-Groups Remote-Name Remote-Email
+    }
+    reverse_proxy 127.0.0.1:8765 {
+        header_up X-Remote-User {http.request.header.Remote-User}
+    }
+    encode gzip zstd
 }
